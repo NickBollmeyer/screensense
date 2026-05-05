@@ -1,0 +1,56 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>icon</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:512px;height:512px;overflow:hidden;background:#0A0A0A}
+  body{font-family:-apple-system,Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  .icon{
+    width:512px; height:512px;
+    display:flex; align-items:center; justify-content:center;
+    background: radial-gradient(circle at 30% 25%, #2563EB 0%, #1E40AF 35%, #0A1F4A 75%, #050A1E 100%);
+    position:relative;
+    overflow:hidden;
+  }
+  .icon::before{
+    content:''; position:absolute; inset:0;
+    background: radial-gradient(circle at 70% 75%, rgba(255,59,48,0.25) 0%, transparent 50%);
+  }
+  .ring{
+    width:340px; height:340px; border-radius:50%;
+    background:
+      conic-gradient(#FFFFFF 0deg 252deg, rgba(255,255,255,0.18) 252deg 360deg);
+    display:flex; align-items:center; justify-content:center;
+    position:relative;
+    box-shadow:
+      0 0 80px rgba(255,255,255,0.2),
+      0 30px 80px rgba(0,0,0,0.5);
+  }
+  .ring::after{
+    content:''; position:absolute; inset:18px;
+    border-radius:50%;
+    background: linear-gradient(160deg, #1A2240 0%, #0A0F25 100%);
+  }
+  .pulse{
+    position:relative; z-index:2;
+    width:170px; height:90px;
+  }
+  .pulse svg{
+    width:100%; height:100%;
+    filter: drop-shadow(0 4px 16px rgba(0,122,255,0.6));
+  }
+  .pulse path{
+    stroke:#FFFFFF; stroke-width:8; fill:none;
+    stroke-linecap:round; stroke-linejoin:round;
+  }
+</style></head>
+<body>
+  <div class="icon">
+    <div class="ring">
+      <div class="pulse">
+        <svg viewBox="0 0 170 90">
+          <path d="M5,45 L40,45 L55,15 L75,75 L95,30 L115,55 L135,45 L165,45"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</body></html>

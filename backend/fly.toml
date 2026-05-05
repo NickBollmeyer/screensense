@@ -1,0 +1,45 @@
+# Fly.io config — deploy ScreenSense backend.
+# https://fly.io/docs/reference/configuration/
+#
+# Setup (one-time):
+#   1. brew install flyctl  (or curl -L https://fly.io/install.sh | sh)
+#   2. fly auth signup       # free tier covers small backends
+#   3. cd /app/backend
+#   4. fly launch --no-deploy --copy-config --name screensense-api
+#   5. fly mongo create --org personal --region iad --name screensense-mongo
+#      (or use Mongo Atlas free tier and set MONGO_URL secret manually)
+#   6. fly secrets set MONGO_URL="<connection-string>" \
+#                       EMERGENT_LLM_KEY="<your-key>"
+#   7. fly deploy
+#   8. fly certs add api.screensense.app   # for custom domain
+
+app = "screensense-api"
+primary_region = "iad"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "8001"
+
+[http_service]
+  internal_port = 8001
+  force_https = true
+  auto_stop_machines = "stop"     # scales to zero when idle
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+[[http_service.checks]]
+  grace_period = "15s"
+  interval = "30s"
+  method = "GET"
+  path = "/api/"
+  protocol = "http"
+  timeout = "5s"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1

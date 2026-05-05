@@ -1,0 +1,16 @@
+__pycache__
+*.pyc
+.venv
+venv
+.env
+.env.local
+.git
+.gitignore
+.idea
+.vscode
+*.log
+tests/
+google-service-account.json
+Dockerfile
+.dockerignore
+README*.md

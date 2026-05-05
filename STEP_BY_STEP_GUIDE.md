@@ -431,20 +431,142 @@ You can keep the mock `/start_trial` for the in-Expo-Go preview, but on a real A
 
 ---
 
-# Putting it all together — the Day 1 launch checklist
+# Step 6 — Deploy the backend somewhere with HTTPS
 
-Once everything above is done, here's the recommended launch order:
+**What this means in plain English:** Right now the FastAPI backend (the server the app talks to for AI Coach, billing, focus mode) only runs on this development machine at `localhost:8001`. Your published Android APK in production needs to call a **public HTTPS URL**. The cheapest, easiest way is **Render** — one click reads our `render.yaml`, builds a Docker image, gives you a free `*.onrender.com` URL, and includes a Mongo database.
 
-1. ☐ AAB built (`eas build --profile production`)
-2. ☐ Subscriptions live in Play Console with exact IDs
-3. ☐ Service-account JSON in both `frontend/` and `backend/`
-4. ☐ Backend deployed somewhere with HTTPS at `api.screensense.app`
-5. ☐ `eas.json` `production.env.EXPO_PUBLIC_BACKEND_URL` matches your backend URL
-6. ☐ Landing page deployed at `screensense.app` (or `screensense.vercel.app`)
-7. ☐ Privacy URL set in Play Console listing → `https://screensense.app/privacy.html`
-8. ☐ Play Store listing fields: name, short description, full description (`/app/play_store/listing_description.txt`), icon (512×512), feature graphic (1024×500), 8 screenshots (`/app/play_store/exports/*.png`)
-9. ☐ Test purchase made on a license-tester device → backend verifies → app unlocks Pro
-10. ☐ Promote release **Closed testing → Open testing → Production**
+**Time:** ~30 min the first time.
+
+**Cost options:**
+- Free tier — backend goes to sleep after 15 min idle, takes 30 sec to wake. OK for testing.
+- $14/mo — $7 backend + $7 Mongo, always-on. Recommended once you have real users.
+
+### 6.1 Push your code to GitHub (one-time)
+
+Render deploys from a GitHub repo. If your code isn't on GitHub yet:
+1. Sign in to <https://github.com> and click **+ → New repository**.
+2. Name it `screensense` → Private → Create.
+3. From the page GitHub shows you, copy the "push an existing repository" lines. They look like:
+   ```bash
+   cd /app
+   git init
+   git add .
+   git commit -m "initial commit"
+   git remote add origin https://github.com/YOUR_USERNAME/screensense.git
+   git branch -M main
+   git push -u origin main
+   ```
+   Run them in your terminal.
+
+### 6.2 Sign up for Render
+
+1. Go to <https://render.com/signup>
+2. Continue with **GitHub** → grant Render access to your `screensense` repo.
+
+### 6.3 One-click deploy via Blueprint
+
+1. Open <https://dashboard.render.com/select-repo?type=blueprint>
+2. Pick your `screensense` repo.
+3. Render auto-detects `/app/backend/render.yaml` and shows two services:
+   - **screensense-api** (Web Service)
+   - **screensense-mongo** (Database)
+4. **One field needs your input** — `EMERGENT_LLM_KEY`:
+   - Get yours: <https://app.emergent.sh> → top-right profile → **Universal Key** → Copy
+   - Paste it into the highlighted field on the Render page
+5. Click **Apply**.
+6. Render starts building. Watch progress in the dashboard — first build takes ~5 min.
+7. Once "Live", click the URL at the top — you'll see `{"message":"ScreenSense API"}` (or the root response).
+
+### 6.4 Connect a custom subdomain (optional)
+
+To get `https://api.screensense.app` instead of `https://screensense-api.onrender.com`:
+
+1. In Render → screensense-api → Settings → Custom Domains → **Add Custom Domain** → `api.screensense.app`
+2. Render shows you a CNAME record: `api → screensense-api.onrender.com`
+3. Add that record in your DNS panel (same registrar where you set up `screensense.app` in Step 4.6).
+4. Wait 5 min – 1 h. Render auto-issues an HTTPS cert.
+
+### 6.5 Update your APK to point at the new URL
+
+Open `/app/frontend/eas.json` and confirm both `preview` and `production` profiles have:
+```json
+"env": {
+  "EXPO_PUBLIC_BACKEND_URL": "https://api.screensense.app"
+}
+```
+(Replace with `https://screensense-api.onrender.com` if you skipped 6.4.)
+
+Then rebuild:
+```bash
+cd /app/frontend
+eas build --platform android --profile production
+```
+
+The new APK now calls your live backend.
+
+### 6.6 (Later, once Step 5 is done) Upload the service-account JSON as a Secret File
+
+1. Render → screensense-api → Environment → **Add Secret File**
+2. **Filename:** `google-service-account.json`
+3. **Mount path:** `/etc/secrets/google-service-account.json`
+4. Paste the JSON contents → Save
+5. In `backend/billing.py`, change:
+   ```python
+   _SA_PATH = os.path.join(os.path.dirname(__file__), "google-service-account.json")
+   ```
+   to:
+   ```python
+   _SA_PATH = os.environ.get(
+       "GOOGLE_SA_PATH",
+       "/etc/secrets/google-service-account.json"
+   )
+   ```
+6. `git push` → Render auto-redeploys.
+
+### Alternative hosts (if Render isn't your style)
+
+| Host | Config file already in repo | Pros | Cons |
+|---|---|---|---|
+| **Render** | `backend/render.yaml` | One-click blueprint, includes Mongo | Free tier sleeps |
+| **Fly.io** | `backend/fly.toml` | Globally distributed, can scale to zero | Mongo is separate (use Atlas free) |
+| **Railway** | `backend/railway.json` | Beautiful UI, easy env vars | $5/mo minimum |
+
+For Fly.io:
+```bash
+brew install flyctl       # or curl -L https://fly.io/install.sh | sh
+cd /app/backend
+fly auth signup
+fly launch --copy-config --name screensense-api --no-deploy
+fly secrets set MONGO_URL="mongodb+srv://..." EMERGENT_LLM_KEY="emg-..."
+fly deploy
+fly certs add api.screensense.app
+```
+
+For Railway:
+1. <https://railway.com/new> → Deploy from GitHub → pick `screensense` repo → root directory `/backend`
+2. Add a Mongo database from the templates marketplace
+3. Add env vars: `MONGO_URL` (from the Mongo service), `EMERGENT_LLM_KEY`, `PORT=8001`
+4. Click Deploy.
+
+---
+
+# Day 1 launch checklist (now full)
+
+1. ☐ AAB built and uploaded to Play Console Closed testing (§1.9, §2.3)
+2. ☐ Subscriptions live with exact IDs `premium_monthly` and `premium_annual` (§2.4)
+3. ☐ Service-account JSON saved & gitignored (§3.3)
+4. ☐ Service-account granted access in Play Console (§3.4)
+5. ☐ Backend deployed at `https://api.screensense.app` (§6)
+6. ☐ Backend purchase verification wired (§5)
+7. ☐ `eas.json` `production.env.EXPO_PUBLIC_BACKEND_URL` matches backend URL
+8. ☐ Landing page deployed at `https://screensense.app` (§4)
+9. ☐ Privacy URL set in Play Console listing → `https://screensense.app/privacy.html`
+10. ☐ Terms URL referenced in app + listing → `https://screensense.app/terms.html`
+11. ☐ Listing fields filled: name, short description, full description (`/app/play_store/listing_description.txt`)
+12. ☐ Icon (`exports/app_icon_512.png`) and feature graphic (`exports/feature_graphic_1024x500.png`) uploaded
+13. ☐ 8 phone screenshots (`exports/01_*.png` … `08_*.png`) uploaded
+14. ☐ Test purchase made on a license-tester device → backend verifies → app unlocks Pro
+15. ☐ Promote release **Closed → Open testing → Production**
 
 First Google review: **2–7 days**. Updates after that: minutes to hours.
 
