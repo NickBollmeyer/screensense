@@ -1,38 +1,37 @@
-# ScreenSense — Habit Tracking App PRD
+# ScreenSense — Habit Tracking App PRD (v1.1)
 
 ## Overview
-ScreenSense is an Android-targeted Expo React Native habit tracking app that automatically monitors phone usage and helps users build healthier digital habits. It splits the day into Task vs Fun activities, breaks down usage by category and individual apps, tracks calls, and provides AI-powered insights.
+ScreenSense is an Android-targeted Expo React Native habit tracking app that automatically monitors phone usage and helps users build healthier digital habits. Splits the day into Task vs Fun activities, breaks down usage by category and individual apps, tracks calls, surfaces AI insights, and lets users chat with an AI coach.
 
-## Core Features
-1. **Onboarding & Permission Flow** — Elegant intro screen explaining Usage Access permission (`/index.tsx`).
-2. **Dashboard (Today tab)** — Hero ring showing total screen time, Task vs Fun bar, quick stats (pickups, notifications, calls), week trend chart, and top categories.
-3. **Apps tab** — Searchable list of every app used today, filterable by category, with per-app duration and launch counts.
-4. **Insights tab** — AI-generated wellness score (0–100), highlights, and personalised recommendations powered by Claude Sonnet 4.5 via the Emergent LLM key.
-5. **Profile tab** — Profile card, daily category limits (goals) with full create/delete CRUD, settings entries.
-6. **Category detail screen** (`/category/[id].tsx`) — Per-category 7-day trend with sparkline + bar chart and the apps used today in that category.
+## App Structure (5 tabs)
+1. **Today** — hero ring (red when total time over goal-ceiling), Task vs Fun bar, pickups/notifications/calls, week chart, top categories with **goal-progress** bars (red border + "OVER LIMIT" badge when exceeded). Auto-refreshes when tab regains focus.
+2. **Apps** — searchable list of apps with category filter chips and per-app duration + launches.
+3. **Stats** — wellness score (0-100, AI-generated), **30-day calendar heat-map** with intensity gradient, best/heaviest day cards, AI highlights & recommendations (Claude Sonnet 4.5).
+4. **Coach** — Conversational AI chat with persistent history. Quick-prompts on empty state. Real Claude Sonnet 4.5 with usage data injected as context. Clear-thread button.
+5. **Profile** — Profile card · **Focus mode** (toggle + start/end hour pickers + silenced category multi-select) · Daily-limit goals CRUD · Preferences (notifications, privacy, help).
 
-## Backend (FastAPI + MongoDB)
-- `GET /api/categories` — 10 pre-defined categories.
-- `GET /api/usage/today` — today's usage with category breakdown.
+Plus a stack screen `/category/[id]` with per-category 7-day sparkline + bar trend + apps list.
+
+## Backend Endpoints (FastAPI + MongoDB)
+- `GET /api/categories` — 10 pre-defined categories with type (task/fun), color, icon, app list.
+- `GET /api/usage/today` — today's usage. Categories include `goal_minutes`, `goal_progress`, `goal_exceeded` when a goal is set.
 - `GET /api/usage/week` — last 7 days totals + Task/Fun split.
+- `GET /api/usage/month` — last 30 days for the heat-map; summary contains `total_seconds`, `avg_seconds`, `best_day`, `worst_day`.
 - `GET /api/usage/category/{id}` — single category detail with weekly trend.
-- `POST /api/insights/generate` — generate AI insights (Claude Sonnet 4.5).
-- `GET /api/insights/today` — cached insights for today.
-- `POST/GET/DELETE /api/goals` — CRUD for daily category limits.
-- `POST /api/seed` — seeds 7 days of mock data.
+- `POST /api/insights/generate` / `GET /api/insights/today` — AI insights (Claude Sonnet 4.5).
+- `POST /api/coach/chat` — sends a user message, returns user + assistant message. Real Claude Sonnet 4.5 with conversation history hydrated from MongoDB.
+- `GET /api/coach/messages` / `DELETE /api/coach/messages` — list / clear chat history.
+- `GET /api/focus_mode` (idempotent upsert) / `PUT /api/focus_mode` — focus-mode settings.
+- `POST/GET/DELETE /api/goals` — daily category limits CRUD.
+- `POST /api/seed` — re-seeds 30 days of mock data.
 
-## Categorization Rules (pre-defined)
-- **Task type**: Productivity, Communication, AI Tools, News & Reading, Health & Fitness.
-- **Fun type**: Social Media, Entertainment, Gaming, Browsing, Shopping.
+## Native Android UsageStatsManager (APK build)
+- `app.json` declares `android.permission.PACKAGE_USAGE_STATS` (special permission), `READ_PHONE_STATE`, `READ_CALL_LOG`, `QUERY_ALL_PACKAGES`.
+- `src/usageStats.ts` provides a thin helper: `nativeUsageAvailable()`, `queryNativeUsage(start, end)`, `openUsageAccessSettings()`. In Expo Go preview these are no-ops; in an APK / dev build the helper expects a `ExpoUsageStatsModule` global registered by a config plugin (todo for the APK build step).
+- The preview continues to use backend-served mock data (30 days seeded automatically).
 
-## Important Technical Notes
-- **MOCKED DATA in preview**: Real Android `UsageStatsManager` integration only works on a built APK. The preview uses realistic mock data (last 7 days seeded automatically) so you can explore the full UI.
-- AI insights via `emergentintegrations` library (`anthropic/claude-sonnet-4-5-20250929`).
-
-## Tech Stack
-- Frontend: Expo Router 6, React Native 0.81, react-native-svg, lucide-react-native, expo-blur.
-- Backend: FastAPI, Motor (async MongoDB), emergentintegrations.
-- Theme: Dark mode "Performance Pro" — Obsidian #0A0A0A background, Volt Blue #007AFF primary, neon green #00FF66 accent.
+## AI Stack
+- `emergentintegrations.llm.chat.LlmChat` with `anthropic/claude-sonnet-4-5-20250929` for both insights and coach chat. Coach hydrates last 10 messages of context into each turn.
 
 ## Smart Business Enhancement
-**ScreenSense Pro tier (future)** — Sell subscriptions for richer AI coaching: personalised week-over-week trend reports, app substitution suggestions ("swap 30 min of TikTok for a 15-min walk"), and family/team dashboards. Demonstrated revenue path while keeping the core tracker free.
+**ScreenSense Pro tier**: monetize via subscription for richer Coach personality + week-over-week reports + family/team dashboards. Coach chat creates a strong daily-engagement loop that drives retention and a clear upgrade path.

@@ -401,14 +401,16 @@ async def delete_goal(goal_id: str):
 # ============================================================
 @api_router.get("/focus_mode")
 async def get_focus_mode():
-    doc = await db.focus_mode.find_one({"user_id": "default_user"}, {"_id": 0})
-    if not doc:
-        default = FocusMode().dict()
-        default["user_id"] = "default_user"
-        await db.focus_mode.insert_one(dict(default))
-        # Re-fetch with _id excluded so we never leak ObjectId
-        doc = await db.focus_mode.find_one(
-            {"user_id": "default_user"}, {"_id": 0})
+    from pymongo import ReturnDocument
+    default = FocusMode().dict()
+    default["user_id"] = "default_user"
+    doc = await db.focus_mode.find_one_and_update(
+        {"user_id": "default_user"},
+        {"$setOnInsert": default},
+        upsert=True,
+        return_document=ReturnDocument.AFTER,
+        projection={"_id": 0},
+    )
     return doc
 
 

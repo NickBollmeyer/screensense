@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import {
   Phone,
   Bell,
@@ -48,6 +48,13 @@ export default function Dashboard() {
   useEffect(() => {
     load();
   }, [load]);
+
+  // Refetch when the tab regains focus (e.g. after creating a goal in Profile).
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [load])
+  );
 
   const onRefresh = () => {
     setRefreshing(true);
