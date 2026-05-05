@@ -203,10 +203,21 @@ export default function Dashboard() {
             data.total_seconds > 0
               ? (cat.duration_seconds / data.total_seconds) * 100
               : 0;
+          const hasGoal = cat.goal_minutes !== undefined && cat.goal_minutes > 0;
+          const goalProgress = Math.min((cat.goal_progress ?? 0) * 100, 100);
+          const exceeded = !!cat.goal_exceeded;
+          const barWidth = hasGoal ? goalProgress : pct;
+          const barColor = exceeded ? theme.colors.warning : cat.color;
           return (
             <TouchableOpacity
               key={cat.id}
-              style={styles.catRow}
+              style={[
+                styles.catRow,
+                exceeded && {
+                  borderColor: theme.colors.warning + '55',
+                  backgroundColor: theme.colors.warningDim,
+                },
+              ]}
               testID={`cat-row-${cat.id}`}
               onPress={() => router.push(`/category/${cat.id}` as any)}
               activeOpacity={0.7}
@@ -220,7 +231,12 @@ export default function Dashboard() {
               <View style={styles.catBody}>
                 <View style={styles.catTopLine}>
                   <Text style={styles.catName}>{cat.name}</Text>
-                  <Text style={styles.catTime}>
+                  <Text
+                    style={[
+                      styles.catTime,
+                      exceeded && { color: theme.colors.warning },
+                    ]}
+                  >
                     {formatDuration(cat.duration_seconds)}
                   </Text>
                 </View>
@@ -228,36 +244,66 @@ export default function Dashboard() {
                   <View
                     style={[
                       styles.catProgressFill,
-                      { width: `${pct}%`, backgroundColor: cat.color },
+                      { width: `${barWidth}%`, backgroundColor: barColor },
                     ]}
                   />
                 </View>
                 <View style={styles.catBottomLine}>
-                  <View
-                    style={[
-                      styles.catBadge,
-                      {
-                        backgroundColor:
-                          cat.type === 'task' ? theme.colors.accentDim : theme.colors.warningDim,
-                      },
-                    ]}
-                  >
-                    <Text
+                  {hasGoal ? (
+                    <View
                       style={[
-                        styles.catBadgeText,
+                        styles.catBadge,
                         {
-                          color:
-                            cat.type === 'task'
-                              ? theme.colors.accent
-                              : theme.colors.warning,
+                          backgroundColor: exceeded
+                            ? theme.colors.warningDim
+                            : theme.colors.primaryDim,
                         },
                       ]}
                     >
-                      {cat.type.toUpperCase()}
-                    </Text>
-                  </View>
+                      <Text
+                        style={[
+                          styles.catBadgeText,
+                          {
+                            color: exceeded
+                              ? theme.colors.warning
+                              : theme.colors.primary,
+                          },
+                        ]}
+                      >
+                        {exceeded ? 'OVER LIMIT' : `${cat.goal_minutes}M GOAL`}
+                      </Text>
+                    </View>
+                  ) : (
+                    <View
+                      style={[
+                        styles.catBadge,
+                        {
+                          backgroundColor:
+                            cat.type === 'task'
+                              ? theme.colors.accentDim
+                              : theme.colors.warningDim,
+                        },
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.catBadgeText,
+                          {
+                            color:
+                              cat.type === 'task'
+                                ? theme.colors.accent
+                                : theme.colors.warning,
+                          },
+                        ]}
+                      >
+                        {cat.type.toUpperCase()}
+                      </Text>
+                    </View>
+                  )}
                   <Text style={styles.catSubText}>
-                    {cat.app_count} app{cat.app_count !== 1 ? 's' : ''} · {pct.toFixed(0)}%
+                    {hasGoal
+                      ? `${Math.round(cat.duration_seconds / 60)} / ${cat.goal_minutes} min`
+                      : `${cat.app_count} app${cat.app_count !== 1 ? 's' : ''} · ${pct.toFixed(0)}%`}
                   </Text>
                 </View>
               </View>

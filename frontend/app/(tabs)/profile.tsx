@@ -8,6 +8,7 @@ import {
   Modal,
   TextInput,
   Alert,
+  Switch,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
@@ -19,23 +20,32 @@ import {
   Plus,
   X,
   Trash2,
+  Moon,
+  Clock,
 } from 'lucide-react-native';
 import { theme } from '../../src/theme';
-import { api, CategoryMeta, Goal } from '../../src/api';
+import { api, CategoryMeta, Goal, FocusMode } from '../../src/api';
 import CategoryIcon from '../../src/components/CategoryIcon';
 
 export default function ProfileScreen() {
   const [cats, setCats] = useState<CategoryMeta[]>([]);
   const [goals, setGoals] = useState<Goal[]>([]);
+  const [focus, setFocus] = useState<FocusMode | null>(null);
   const [showGoalModal, setShowGoalModal] = useState(false);
+  const [showFocusModal, setShowFocusModal] = useState(false);
   const [selCat, setSelCat] = useState<string>('');
   const [limitMin, setLimitMin] = useState('60');
 
   const refresh = async () => {
     try {
-      const [c, g] = await Promise.all([api.getCategories(), api.getGoals()]);
+      const [c, g, f] = await Promise.all([
+        api.getCategories(),
+        api.getGoals(),
+        api.getFocusMode(),
+      ]);
       setCats(c);
       setGoals(g);
+      setFocus(f);
     } catch (e) {
       console.warn(e);
     }
@@ -57,7 +67,7 @@ export default function ProfileScreen() {
       setSelCat('');
       setLimitMin('60');
       refresh();
-    } catch (e) {
+    } catch {
       Alert.alert('Error', 'Could not save goal.');
     }
   };
@@ -67,8 +77,40 @@ export default function ProfileScreen() {
     refresh();
   };
 
+  const toggleFocusEnabled = async (val: boolean) => {
+    if (!focus) return;
+    setFocus({ ...focus, enabled: val });
+    try {
+      await api.updateFocusMode({ enabled: val });
+    } catch {
+      setFocus(focus); // revert
+    }
+  };
+
+  const setHour = async (key: 'start_hour' | 'end_hour', val: number) => {
+    if (!focus) return;
+    const updated = { ...focus, [key]: val };
+    setFocus(updated);
+    await api.updateFocusMode({ [key]: val });
+  };
+
+  const toggleSilenced = async (catId: string) => {
+    if (!focus) return;
+    const next = focus.silenced_categories.includes(catId)
+      ? focus.silenced_categories.filter((c) => c !== catId)
+      : [...focus.silenced_categories, catId];
+    setFocus({ ...focus, silenced_categories: next });
+    await api.updateFocusMode({ silenced_categories: next });
+  };
+
   const catMap: Record<string, CategoryMeta> = {};
   cats.forEach((c) => (catMap[c.id] = c));
+
+  const formatHour = (h: number) => {
+    const period = h >= 12 ? 'PM' : 'AM';
+    const display = h === 0 ? 12 : h > 12 ? h - 12 : h;
+    return `${display}:00 ${period}`;
+  };
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -84,8 +126,62 @@ export default function ProfileScreen() {
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.profName}>You</Text>
-            <Text style={styles.profMeta}>Tracking since today · ScreenSense Pro</Text>
+            <Text style={styles.profMeta}>
+              Tracking since today · ScreenSense Pro
+            </Text>
           </View>
+        </View>
+
+        {/* Focus Mode */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Focus mode</Text>
+          {focus?.enabled && (
+            <View style={styles.activeBadge}>
+              <View style={styles.activeDot} />
+              <Text style={styles.activeText}>ACTIVE</Text>
+            </View>
+          )}
+        </View>
+
+        <View style={styles.focusCard} testID="focus-mode-card">
+          <View style={styles.focusTopRow}>
+            <View style={styles.focusIconBox}>
+              <Moon size={18} color={theme.colors.primary} strokeWidth={2.2} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.focusTitle}>Focus hours</Text>
+              <Text style={styles.focusSubtitle}>
+                Silence selected categories during work
+              </Text>
+            </View>
+            <Switch
+              testID="focus-toggle"
+              value={focus?.enabled ?? false}
+              onValueChange={toggleFocusEnabled}
+              trackColor={{
+                false: theme.colors.surface,
+                true: theme.colors.primary + '88',
+              }}
+              thumbColor={focus?.enabled ? theme.colors.primary : '#666'}
+            />
+          </View>
+
+          <TouchableOpacity
+            style={styles.focusRow}
+            onPress={() => setShowFocusModal(true)}
+            testID="focus-config-btn"
+          >
+            <Clock size={14} color={theme.colors.textSecondary} strokeWidth={2} />
+            <Text style={styles.focusRowText}>
+              {focus
+                ? `${formatHour(focus.start_hour)} → ${formatHour(focus.end_hour)}`
+                : '—'}
+            </Text>
+            <Text style={styles.focusRowMeta}>
+              {focus?.silenced_categories.length ?? 0} silenced
+            </Text>
+            <ChevronRight size={14} color={theme.colors.textMuted} strokeWidth={2} />
+          </TouchableOpacity>
         </View>
 
         {/* Goals */}
@@ -167,7 +263,7 @@ export default function ProfileScreen() {
           testID="setting-help"
         />
 
-        <Text style={styles.footerText}>ScreenSense · v1.0 · Preview build</Text>
+        <Text style={styles.footerText}>ScreenSense · v1.1 · Preview build</Text>
       </ScrollView>
 
       {/* Goal Modal */}
@@ -188,7 +284,6 @@ export default function ProfileScreen() {
                 <X size={20} color={theme.colors.textSecondary} />
               </TouchableOpacity>
             </View>
-
             <Text style={styles.modalLabel}>CATEGORY</Text>
             <ScrollView
               horizontal
@@ -212,7 +307,10 @@ export default function ProfileScreen() {
                   <Text
                     style={[
                       styles.catPickText,
-                      selCat === c.id && { color: theme.colors.text, fontWeight: '700' },
+                      selCat === c.id && {
+                        color: theme.colors.text,
+                        fontWeight: '700',
+                      },
                     ]}
                   >
                     {c.name}
@@ -220,7 +318,6 @@ export default function ProfileScreen() {
                 </TouchableOpacity>
               ))}
             </ScrollView>
-
             <Text style={[styles.modalLabel, { marginTop: 16 }]}>
               MINUTES PER DAY
             </Text>
@@ -232,13 +329,131 @@ export default function ProfileScreen() {
               keyboardType="number-pad"
               placeholderTextColor={theme.colors.textMuted}
             />
-
             <TouchableOpacity
               style={styles.saveBtn}
               onPress={saveGoal}
               testID="save-goal-btn"
             >
               <Text style={styles.saveBtnText}>Save limit</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Focus Mode Modal */}
+      <Modal
+        transparent
+        animationType="slide"
+        visible={showFocusModal}
+        onRequestClose={() => setShowFocusModal(false)}
+      >
+        <View style={styles.modalBg}>
+          <View style={styles.modal} testID="focus-modal">
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Focus hours</Text>
+              <TouchableOpacity
+                onPress={() => setShowFocusModal(false)}
+                testID="close-focus-modal"
+              >
+                <X size={20} color={theme.colors.textSecondary} />
+              </TouchableOpacity>
+            </View>
+
+            <Text style={styles.modalLabel}>START</Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.hourRow}
+            >
+              {Array.from({ length: 24 }).map((_, h) => (
+                <TouchableOpacity
+                  key={h}
+                  testID={`start-hour-${h}`}
+                  onPress={() => setHour('start_hour', h)}
+                  style={[
+                    styles.hourPick,
+                    focus?.start_hour === h && styles.hourPickActive,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.hourText,
+                      focus?.start_hour === h && styles.hourTextActive,
+                    ]}
+                  >
+                    {h}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+
+            <Text style={[styles.modalLabel, { marginTop: 16 }]}>END</Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.hourRow}
+            >
+              {Array.from({ length: 24 }).map((_, h) => (
+                <TouchableOpacity
+                  key={h}
+                  testID={`end-hour-${h}`}
+                  onPress={() => setHour('end_hour', h)}
+                  style={[
+                    styles.hourPick,
+                    focus?.end_hour === h && styles.hourPickActive,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.hourText,
+                      focus?.end_hour === h && styles.hourTextActive,
+                    ]}
+                  >
+                    {h}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+
+            <Text style={[styles.modalLabel, { marginTop: 16 }]}>
+              SILENCE THESE CATEGORIES
+            </Text>
+            <View style={styles.silencedGrid}>
+              {cats.map((c) => {
+                const on = focus?.silenced_categories.includes(c.id) ?? false;
+                return (
+                  <TouchableOpacity
+                    key={c.id}
+                    onPress={() => toggleSilenced(c.id)}
+                    testID={`silence-${c.id}`}
+                    style={[
+                      styles.catPick,
+                      on && {
+                        borderColor: c.color,
+                        backgroundColor: c.color + '33',
+                      },
+                    ]}
+                  >
+                    <View style={[styles.catPickDot, { backgroundColor: c.color }]} />
+                    <Text
+                      style={[
+                        styles.catPickText,
+                        on && { color: theme.colors.text, fontWeight: '700' },
+                      ]}
+                    >
+                      {c.name}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
+            <TouchableOpacity
+              style={styles.saveBtn}
+              onPress={() => setShowFocusModal(false)}
+              testID="done-focus-btn"
+            >
+              <Text style={styles.saveBtnText}>Done</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -316,6 +531,76 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   sectionTitle: { color: theme.colors.text, fontSize: 17, fontWeight: '700' },
+  activeBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 999,
+    backgroundColor: theme.colors.accentDim,
+    gap: 6,
+  },
+  activeDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: theme.colors.accent,
+    marginRight: 4,
+  },
+  activeText: {
+    color: theme.colors.accent,
+    fontSize: 9,
+    fontWeight: '800',
+    letterSpacing: 1,
+  },
+  focusCard: {
+    backgroundColor: theme.colors.surface,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 24,
+  },
+  focusTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 12,
+  },
+  focusIconBox: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: theme.colors.primaryDim,
+    borderWidth: 1,
+    borderColor: theme.colors.primary + '40',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 6,
+  },
+  focusTitle: { color: theme.colors.text, fontSize: 14, fontWeight: '700' },
+  focusSubtitle: { color: theme.colors.textMuted, fontSize: 11, marginTop: 2 },
+  focusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingTop: 10,
+    paddingHorizontal: 4,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.border,
+    gap: 8,
+  },
+  focusRowText: {
+    color: theme.colors.text,
+    fontSize: 13,
+    fontWeight: '600',
+    flex: 1,
+    marginLeft: 6,
+  },
+  focusRowMeta: {
+    color: theme.colors.textMuted,
+    fontSize: 11,
+    fontWeight: '600',
+  },
   addBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -403,6 +688,7 @@ const styles = StyleSheet.create({
     paddingBottom: 36,
     borderTopWidth: 1,
     borderColor: theme.colors.border,
+    maxHeight: '85%',
   },
   modalHeader: {
     flexDirection: 'row',
@@ -429,9 +715,37 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.surface,
     gap: 6,
     marginRight: 8,
+    marginBottom: 8,
   },
   catPickDot: { width: 6, height: 6, borderRadius: 3, marginRight: 4 },
   catPickText: { color: theme.colors.textSecondary, fontSize: 12, fontWeight: '600' },
+  silencedGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 8,
+  },
+  hourRow: { gap: 6, paddingVertical: 8 },
+  hourPick: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    backgroundColor: theme.colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 6,
+  },
+  hourPickActive: {
+    backgroundColor: theme.colors.primary,
+    borderColor: theme.colors.primary,
+  },
+  hourText: {
+    color: theme.colors.textSecondary,
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  hourTextActive: { color: '#FFFFFF' },
   modalInput: {
     backgroundColor: theme.colors.surface,
     borderWidth: 1,

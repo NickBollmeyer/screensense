@@ -9,23 +9,37 @@ import {
   RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Sparkles, RefreshCw, Lightbulb, Target, TrendingUp } from 'lucide-react-native';
-import { theme } from '../../src/theme';
-import { api, Insight } from '../../src/api';
+import {
+  Sparkles,
+  RefreshCw,
+  Lightbulb,
+  Target,
+  TrendingUp,
+  Calendar,
+  TrendingDown,
+} from 'lucide-react-native';
+import { theme, formatDurationShort } from '../../src/theme';
+import { api, Insight, MonthUsage } from '../../src/api';
 import CircularProgress from '../../src/components/CircularProgress';
+import MonthlyHeatmap from '../../src/components/MonthlyHeatmap';
 
-export default function InsightsScreen() {
+export default function StatsScreen() {
   const [insight, setInsight] = useState<Insight | null>(null);
+  const [month, setMonth] = useState<MonthUsage | null>(null);
   const [loading, setLoading] = useState(true);
   const [regenerating, setRegenerating] = useState(false);
 
   const load = useCallback(async (force = false) => {
     try {
       if (force) setRegenerating(true);
-      const d = force ? await api.generateInsights() : await api.getTodayInsights();
-      setInsight(d);
+      const [insightData, monthData] = await Promise.all([
+        force ? api.generateInsights() : api.getTodayInsights(),
+        api.getMonth(),
+      ]);
+      setInsight(insightData);
+      setMonth(monthData);
     } catch (e) {
-      console.warn('insight load failed', e);
+      console.warn('stats load failed', e);
     } finally {
       setLoading(false);
       setRegenerating(false);
@@ -38,9 +52,9 @@ export default function InsightsScreen() {
 
   if (loading) {
     return (
-      <View style={styles.loader} testID="insights-loading">
+      <View style={styles.loader} testID="stats-loading">
         <ActivityIndicator color={theme.colors.primary} size="large" />
-        <Text style={styles.loadingText}>Analyzing your habits…</Text>
+        <Text style={styles.loadingText}>Crunching numbers…</Text>
       </View>
     );
   }
@@ -65,12 +79,12 @@ export default function InsightsScreen() {
             tintColor={theme.colors.primary}
           />
         }
-        testID="insights-scroll"
+        testID="stats-scroll"
       >
         <View style={styles.header}>
           <View>
-            <Text style={styles.eyebrow}>AI COACH</Text>
-            <Text style={styles.title}>Insights</Text>
+            <Text style={styles.eyebrow}>HABIT REPORT</Text>
+            <Text style={styles.title}>Stats</Text>
           </View>
           <TouchableOpacity
             style={styles.regenBtn}
@@ -78,12 +92,7 @@ export default function InsightsScreen() {
             disabled={regenerating}
             testID="regenerate-insights-btn"
           >
-            <RefreshCw
-              size={14}
-              color={theme.colors.primary}
-              strokeWidth={2.2}
-              style={regenerating ? { opacity: 0.5 } : undefined}
-            />
+            <RefreshCw size={14} color={theme.colors.primary} strokeWidth={2.2} />
             <Text style={styles.regenText}>
               {regenerating ? 'Refreshing' : 'Refresh'}
             </Text>
@@ -95,7 +104,7 @@ export default function InsightsScreen() {
           <View style={styles.scoreLeft}>
             <CircularProgress
               progress={score / 100}
-              size={140}
+              size={130}
               strokeWidth={12}
               color={scoreColor}
               centerLabel={String(score)}
@@ -107,7 +116,60 @@ export default function InsightsScreen() {
               {scoreLabel.toUpperCase()}
             </Text>
             <Text style={styles.scoreTitle}>Wellness Score</Text>
-            <Text style={styles.scoreSummary}>{insight?.summary}</Text>
+            <Text style={styles.scoreSummary} numberOfLines={4}>
+              {insight?.summary}
+            </Text>
+          </View>
+        </View>
+
+        {/* Monthly heatmap */}
+        <View style={styles.card} testID="month-card">
+          <View style={styles.cardHeader}>
+            <View style={styles.cardHeaderLeft}>
+              <Calendar size={14} color={theme.colors.primary} strokeWidth={2.2} />
+              <Text style={styles.cardTitle}>30-day heatmap</Text>
+            </View>
+            <Text style={styles.cardSub}>
+              avg {formatDurationShort(month?.summary.avg_seconds ?? 0)}/day
+            </Text>
+          </View>
+          <MonthlyHeatmap days={month?.days ?? []} />
+
+          <View style={styles.bestRow}>
+            <View style={styles.bestCol} testID="best-day-card">
+              <View style={styles.bestIcon}>
+                <TrendingDown size={14} color={theme.colors.accent} strokeWidth={2.4} />
+              </View>
+              <Text style={styles.bestLbl}>BEST DAY</Text>
+              <Text style={styles.bestVal}>
+                {formatDurationShort(month?.summary.best_day?.total_seconds ?? 0)}
+              </Text>
+              <Text style={styles.bestDate}>
+                {month?.summary.best_day
+                  ? new Date(month.summary.best_day.date).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                    })
+                  : '—'}
+              </Text>
+            </View>
+            <View style={styles.bestCol} testID="worst-day-card">
+              <View style={[styles.bestIcon, { backgroundColor: theme.colors.warningDim }]}>
+                <TrendingUp size={14} color={theme.colors.warning} strokeWidth={2.4} />
+              </View>
+              <Text style={styles.bestLbl}>HEAVIEST</Text>
+              <Text style={styles.bestVal}>
+                {formatDurationShort(month?.summary.worst_day?.total_seconds ?? 0)}
+              </Text>
+              <Text style={styles.bestDate}>
+                {month?.summary.worst_day
+                  ? new Date(month.summary.worst_day.date).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                    })
+                  : '—'}
+              </Text>
+            </View>
           </View>
         </View>
 
@@ -120,11 +182,7 @@ export default function InsightsScreen() {
             <Text style={styles.sectionTitle}>Highlights</Text>
           </View>
           {insight?.highlights.map((h, i) => (
-            <View
-              key={i}
-              style={styles.itemCard}
-              testID={`highlight-${i}`}
-            >
+            <View key={i} style={styles.itemCard} testID={`highlight-${i}`}>
               <View style={styles.itemNumber}>
                 <Text style={styles.itemNumberText}>{i + 1}</Text>
               </View>
@@ -159,12 +217,10 @@ export default function InsightsScreen() {
           ))}
         </View>
 
-        {/* AI signature */}
         <View style={styles.signature}>
           <Sparkles size={12} color={theme.colors.textMuted} strokeWidth={2} />
           <Text style={styles.signatureText}>
-            Generated by Claude Sonnet 4.5 · Updated{' '}
-            {insight ? new Date(insight.date).toLocaleDateString() : 'today'}
+            Generated by Claude Sonnet 4.5
           </Text>
         </View>
       </ScrollView>
@@ -179,7 +235,6 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.bg,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 16,
   },
   loadingText: { color: theme.colors.textSecondary, fontSize: 13, marginTop: 12 },
   scroll: { padding: 20, paddingBottom: 110 },
@@ -226,27 +281,94 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: theme.colors.border,
     borderRadius: 24,
-    padding: 18,
-    marginBottom: 24,
+    padding: 16,
+    marginBottom: 16,
   },
   scoreLeft: { alignItems: 'center', justifyContent: 'center' },
-  scoreRight: { flex: 1, marginLeft: 14, justifyContent: 'center' },
+  scoreRight: { flex: 1, marginLeft: 12, justifyContent: 'center' },
   scoreLabelTxt: {
     fontSize: 11,
     letterSpacing: 2,
     fontWeight: '800',
-    marginBottom: 6,
+    marginBottom: 4,
   },
   scoreTitle: {
     color: theme.colors.text,
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
-    marginBottom: 6,
+    marginBottom: 4,
   },
   scoreSummary: {
     color: theme.colors.textSecondary,
-    fontSize: 13,
-    lineHeight: 19,
+    fontSize: 12,
+    lineHeight: 17,
+  },
+  card: {
+    backgroundColor: theme.colors.surface,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    borderRadius: 20,
+    padding: 18,
+    marginBottom: 16,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 14,
+  },
+  cardHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  cardTitle: {
+    color: theme.colors.text,
+    fontSize: 16,
+    fontWeight: '700',
+    marginLeft: 6,
+  },
+  cardSub: { color: theme.colors.textMuted, fontSize: 12, fontWeight: '600' },
+  bestRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 16,
+  },
+  bestCol: {
+    flex: 1,
+    backgroundColor: 'rgba(255,255,255,0.02)',
+    borderRadius: 12,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  bestIcon: {
+    width: 28,
+    height: 28,
+    borderRadius: 8,
+    backgroundColor: theme.colors.accentDim,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  bestLbl: {
+    color: theme.colors.textMuted,
+    fontSize: 9,
+    fontWeight: '800',
+    letterSpacing: 1.4,
+    marginBottom: 4,
+  },
+  bestVal: {
+    color: theme.colors.text,
+    fontSize: 18,
+    fontWeight: '800',
+    letterSpacing: -0.5,
+  },
+  bestDate: {
+    color: theme.colors.textSecondary,
+    fontSize: 11,
+    marginTop: 2,
+    fontWeight: '600',
   },
   section: { marginBottom: 24 },
   sectionHeader: {
@@ -264,11 +386,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 8,
   },
-  sectionTitle: {
-    color: theme.colors.text,
-    fontSize: 17,
-    fontWeight: '700',
-  },
+  sectionTitle: { color: theme.colors.text, fontSize: 17, fontWeight: '700' },
   itemCard: {
     flexDirection: 'row',
     backgroundColor: theme.colors.surface,
@@ -278,7 +396,6 @@ const styles = StyleSheet.create({
     padding: 14,
     marginBottom: 10,
     alignItems: 'flex-start',
-    gap: 12,
   },
   recCard: { borderColor: theme.colors.accent + '33' },
   itemNumber: {
@@ -291,27 +408,14 @@ const styles = StyleSheet.create({
     marginRight: 10,
     marginTop: 1,
   },
-  itemNumberText: {
-    color: theme.colors.primary,
-    fontSize: 11,
-    fontWeight: '800',
-  },
-  itemText: {
-    color: theme.colors.text,
-    fontSize: 14,
-    flex: 1,
-    lineHeight: 20,
-  },
+  itemNumberText: { color: theme.colors.primary, fontSize: 11, fontWeight: '800' },
+  itemText: { color: theme.colors.text, fontSize: 14, flex: 1, lineHeight: 20 },
   signature: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 8,
+    marginTop: 4,
     gap: 6,
   },
-  signatureText: {
-    color: theme.colors.textMuted,
-    fontSize: 11,
-    marginLeft: 4,
-  },
+  signatureText: { color: theme.colors.textMuted, fontSize: 11, marginLeft: 4 },
 });

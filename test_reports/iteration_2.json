@@ -1,0 +1,49 @@
+{
+  "summary": "Iteration 2 testing complete. Backend: 8/8 new pytest tests pass for /usage/month, /focus_mode (GET+PUT), goal-progress fields on /usage/today, and /coach/* (chat with real Claude Sonnet 4.5 reply, history, clear, empty-message rejection). Frontend: All 5 tabs render with proper testIDs; Stats tab shows 30-cell heatmap + best/worst day cards; Coach tab quick prompts work and produce a substantive AI reply (real Claude, not fallback) with distinct user/assistant bubbles and clear-chat-btn appearing after first message; Profile shows focus-mode card with toggle + config modal containing 24 start/end-hour pickers and silenced category chips; Dashboard correctly renders red 'OVER LIMIT' badge with '157 / 5 min' text and red border on Social Media row when goal is exceeded. One UX nit: dashboard does not auto-refresh on tab focus, so goals created from Profile won't reflect until the user pulls-to-refresh or reloads.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "GET /api/focus_mode", "issue": "One transient 500 was logged early in the run (likely first-call race when default doc was inserted then re-fetched). All subsequent calls returned 200 with correct shape and no _id leak. Not reproducible in pytest. If it recurs, the upsert-then-refetch pattern in get_focus_mode could be replaced with a single $setOnInsert upsert that returns the new doc."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "app/(tabs)/index.tsx",
+        "issue": "Dashboard fetches /usage/today only on mount; navigating to Profile to add a goal and tabbing back does not refresh the category rows, so the 'OVER LIMIT' / 'Xm GOAL' badge does not appear until the user pulls to refresh or reloads the app. Recommend adding useFocusEffect from @react-navigation/native to refetch on tab focus.",
+        "testID": "n/a",
+        "priority": "MEDIUM"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": [
+      {"component": "Console warnings", "issue": "Same iteration-1 warnings persist: 'props.pointerEvents is deprecated' and 'Invalid DOM property transform-origin'. Library-level (lucide / svg). Non-blocking."}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iteration2_features.py",
+    "/app/test_reports/pytest/iteration2_results.xml"
+  ],
+  "action_items": [
+    "Add useFocusEffect (or pull-to-refresh) on Dashboard so goal-progress badges update after a goal is added/edited from Profile without requiring full reload.",
+    "Optional hardening: tighten /api/focus_mode GET to avoid the one observed transient 500 by combining upsert + read in a single call (or using find_one_and_update).",
+    "Iteration 1 onboarding-on-web bug (Alert.alert buttons not firing) is reportedly fixed via Platform.OS===web shortcut per request notes — not re-tested here."
+  ],
+  "critical_code_review_comments": [
+    "server.py is now ~640 lines — still single-file but acceptable; will benefit from splitting into routes/usage.py, routes/coach.py, routes/focus.py once another feature is added.",
+    "All new endpoints exclude Mongo _id with explicit {\"_id\": 0} projection — verified via tests.",
+    "Coach chat correctly hydrates last 10 turns of history in a context-prefixed message rather than relying on session memory — robust across restarts.",
+    "Goal-progress block in get_today_usage clamps progress at 2.0 (good) and only attaches goal_* fields to categories with a goal (good — verified by test_goal_fields_attached).",
+    "All new interactive elements have testID (focus-toggle, focus-config-btn, focus-modal, start-hour-N, end-hour-N, silence-<cat>, clear-chat-btn, quick-prompt-*, msg-user, msg-assistant, monthly-heatmap, heatmap-cell-<date>, best-day-card, worst-day-card)."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iteration2_features.py (created)"
+  ],
+  "success_rate": {"backend": "100% (8/8 new + 9/9 existing)", "frontend": "95% (all flows work; goal-progress only stale on tab re-focus)"},
+  "seed_data_creation": "30 days of mock usage auto-seeded by /api/usage/month and /api/usage/today on first call. No additional seed required.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Iteration 2 features verified end-to-end against https://habit-dashboard-app-1.preview.emergentagent.com. Use /(tabs) directly to skip onboarding. To verify goal-progress on dashboard, POST /api/goals with daily_limit_minutes:5 BEFORE first dashboard mount (or reload after creating goal). Backend logged one transient 500 on the very first GET /api/focus_mode of the run; consistently 200 thereafter. AI coach uses real Claude Sonnet 4.5 — full multi-paragraph response observed. EMERGENT_LLM_KEY budget appears healthy in this run.",
+  "rca_of_issue": "Dashboard goal badges sometimes not visible after creating a goal: app/(tabs)/index.tsx loads usage data with useEffect(...,[]) only. Expo Router tabs are persistent (do not unmount on tab switch), so the dashboard never refetches when the user returns from Profile. Mitigation: replace useEffect with useFocusEffect(useCallback(()=>{ load(); },[])) from expo-router or @react-navigation/native, OR expose a manual refresh control already present (header refresh icon on Stats) on the dashboard too."
+}
