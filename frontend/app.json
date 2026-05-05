@@ -1,17 +1,23 @@
 {
   "expo": {
     "name": "ScreenSense",
-    "slug": "frontend",
+    "slug": "screensense",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "frontend",
+    "scheme": "screensense",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": false,
+      "bundleIdentifier": "app.screensense.android",
+      "infoPlist": {
+        "NSUserTrackingUsageDescription": "We never track you across other apps."
+      }
     },
     "android": {
+      "package": "app.screensense.android",
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#000"
@@ -21,8 +27,11 @@
         "android.permission.PACKAGE_USAGE_STATS",
         "android.permission.READ_PHONE_STATE",
         "android.permission.READ_CALL_LOG",
-        "android.permission.QUERY_ALL_PACKAGES"
-      ]
+        "android.permission.QUERY_ALL_PACKAGES",
+        "com.android.vending.BILLING",
+        "android.permission.POST_NOTIFICATIONS"
+      ],
+      "blockedPermissions": []
     },
     "web": {
       "bundler": "metro",
@@ -39,10 +48,28 @@
           "resizeMode": "contain",
           "backgroundColor": "#000"
         }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 35,
+            "minSdkVersion": 26,
+            "buildToolsVersion": "35.0.0",
+            "kotlinVersion": "2.0.21"
+          }
+        }
       ]
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "REPLACE_WITH_YOUR_EAS_PROJECT_ID"
+      }
+    },
+    "owner": "REPLACE_WITH_YOUR_EXPO_USERNAME"
   }
 }

@@ -1,0 +1,18 @@
+{
+  "name": "usage-stats",
+  "version": "1.0.0",
+  "description": "Read Android UsageStatsManager from React Native",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "keywords": ["react-native", "expo", "usage-stats"],
+  "license": "MIT",
+  "sideEffects": false,
+  "dependencies": {
+    "expo-modules-core": "*"
+  },
+  "peerDependencies": {
+    "expo": "*",
+    "react": "*",
+    "react-native": "*"
+  }
+}

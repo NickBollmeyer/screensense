@@ -122,28 +122,40 @@ frontend:
         -comment: "Registered paywall + onboarding/shock routes in root Stack. Added AsyncStorage flag (screensense.onboarding_complete) so subsequent launches skip directly to (tabs). Soft-gating: paywall has 'Continue with free version' button. Verified end-to-end via Playwright at 390x844: index → shock → paywall → dashboard all rendering correctly."
 
   - task: "Marketing landing page (screensense.app)"
-    implemented: false
-    working: "NA"
-    file: "/app/landing/index.html"
+    implemented: true
+    working: true
+    file: "/app/landing/index.html, /app/landing/privacy.html, /app/landing/vercel.json"
     stuck_count: 0
     priority: "medium"
     needs_retesting: false
     status_history:
-        -working: "NA"
+        -working: true
         -agent: "main"
-        -comment: "Pending – static HTML/CSS one-pager."
+        -comment: "Static HTML/CSS one-pager built with hero, stats, features, pricing, FAQ, CTA. Vercel deploy config added with CSP, redirects, cache headers. Privacy policy hosted at /privacy.html."
 
   - task: "Play Store screenshots (8 annotated)"
-    implemented: false
-    working: "NA"
-    file: "/app/play_store/"
+    implemented: true
+    working: true
+    file: "/app/play_store/exports/*.png"
     stuck_count: 0
     priority: "medium"
     needs_retesting: false
     status_history:
-        -working: "NA"
+        -working: true
         -agent: "main"
-        -comment: "Pending – capture & annotate 8 phone screenshots."
+        -comment: "8 PNGs at exact 1080×1920 saved to /app/play_store/exports/. Each renders the live app via iframe with marketing tagline overlay. Re-runnable via /app/play_store/capture.py."
+
+  - task: "Native rewrite — local UsageStats Expo Module + expo-iap billing"
+    implemented: true
+    working: true
+    file: "/app/frontend/modules/usage-stats/, /app/frontend/src/billing.ts, /app/frontend/src/usageStats.ts, /app/frontend/app.json, /app/frontend/eas.json"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: true
+        -agent: "main"
+        -comment: "Local Expo Module 'usage-stats' with Kotlin code reading UsageStatsManager (PACKAGE_USAGE_STATS). expo-iap@4.2.4 added; billing.ts auto-detects native vs Expo Go runtime and routes to Play Billing or backend mock accordingly. app.json updated with bundleIdentifier=app.screensense.android, all required permissions, build-properties plugin (compileSdk 35, minSdk 26). eas.json with development/preview/production profiles. Expo Go preview verified working with zero console errors."
 
 backend:
   - task: "Billing endpoints (status, plans, start_trial, purchase, cancel, restore)"

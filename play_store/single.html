@@ -1,0 +1,87 @@
+<!doctype html>
+<!-- Single-card export view. Loads ?n=1..8 to render one screenshot at 1080x1920. -->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>ScreenSense — Single Screenshot</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; background: #050507; }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif; color: #fff; -webkit-font-smoothing: antialiased; }
+  .shot { width: 1080px; height: 1920px; position: relative; overflow: hidden; display: flex; flex-direction: column; background: var(--bg); }
+  .shot .head { padding: 100px 70px 30px; text-align: center; }
+  .shot .eyebrow { color: #007AFF; font-size: 22px; letter-spacing: 6px; font-weight: 800; margin-bottom: 28px; text-transform: uppercase; }
+  .shot .title { font-size: 80px; line-height: 1.04; font-weight: 800; letter-spacing: -2.5px; }
+  .shot .title .a { color: #007AFF; }
+  .shot .title .r { color: #FF3B30; }
+  .shot .title .g { color: #34C759; }
+  .phone-wrap {
+    position: relative; flex: 1;
+    margin: 50px 70px 0;
+    border-radius: 60px 60px 0 0;
+    background: #0A0A0A;
+    border: 4px solid rgba(255,255,255,0.10);
+    border-bottom: none;
+    overflow: hidden;
+    box-shadow: 0 -20px 80px rgba(0,0,0,0.6);
+  }
+  .phone-wrap iframe {
+    width: 390px; height: 844px;
+    border: 0; display: block;
+    transform-origin: top left;
+    /* phone-wrap inner ~= 932 wide, scale 932/390 = 2.39 */
+    transform: scale(2.39);
+  }
+  .bg1 { --bg: linear-gradient(160deg, #2a0808 0%, #050507 60%); }
+  .bg2 { --bg: linear-gradient(160deg, #082140 0%, #050507 60%); }
+  .bg3 { --bg: linear-gradient(160deg, #1f0a40 0%, #050507 60%); }
+  .bg4 { --bg: linear-gradient(160deg, #0a2030 0%, #050507 60%); }
+  .bg5 { --bg: linear-gradient(160deg, #0a2a1c 0%, #050507 60%); }
+  .bg6 { --bg: linear-gradient(160deg, #102040 0%, #050507 60%); }
+  .bg7 { --bg: linear-gradient(160deg, #2a1c08 0%, #050507 60%); }
+  .bg8 { --bg: linear-gradient(160deg, #0a1f1c 0%, #050507 60%); }
+  .marketing { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px; text-align: center; }
+  .marketing .big { font-size: 130px; font-weight: 800; line-height: 1.04; letter-spacing: -5px; }
+  .marketing .sub { color: #A0A0A8; margin-top: 50px; font-size: 36px; line-height: 1.5; max-width: 720px; }
+  .marketing .pill { margin-top: 80px; display: inline-block; padding: 32px 60px; background: #007AFF; border-radius: 999px; font-weight: 800; font-size: 34px; box-shadow: 0 14px 40px rgba(0,122,255,0.5); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const cards = {
+  1: { bg: 'bg1', eb: 'YOUR LAST 7 DAYS', t: 'You\'re losing<br><span class="r">150 days a year</span><br>to your phone.', src: 'http://localhost:3000/onboarding/shock' },
+  2: { bg: 'bg2', eb: 'TODAY DASHBOARD', t: 'Know exactly<br>where your <span class="a">hours go.</span>', src: 'http://localhost:3000/(tabs)' },
+  3: { bg: 'bg3', eb: 'AI HABIT COACH', t: 'A coach that<br><span class="a">knows your patterns.</span>', src: 'http://localhost:3000/(tabs)/coach' },
+  4: { bg: 'bg4', eb: '30-DAY HEATMAP', t: 'See <span class="a">30 days</span> of<br>patterns at a glance.', src: 'http://localhost:3000/(tabs)/stats' },
+  5: { bg: 'bg5', eb: 'AUTO CATEGORIES', t: 'Every app,<br><span class="g">automatically</span> sorted.', src: 'http://localhost:3000/(tabs)/apps' },
+  6: { bg: 'bg6', eb: 'FOCUS MODE', t: 'Schedule deep work.<br><span class="a">Silence the rest.</span>', src: 'http://localhost:3000/(tabs)/profile' },
+  7: { bg: 'bg7', eb: 'SCREENSENSE PRO', t: '7-day free trial.<br><span class="g">Pays for itself</span> in 6 days.', src: 'http://localhost:3000/paywall' },
+  8: { bg: 'bg8', eb: 'PRIVATE BY DESIGN', marketing: true }
+};
+const n = parseInt(new URLSearchParams(location.search).get('n') || '1', 10);
+const c = cards[n] || cards[1];
+const root = document.getElementById('root');
+if (c.marketing) {
+  root.innerHTML = `
+    <div class="shot ${c.bg}">
+      <div class="marketing">
+        <div class="eyebrow" style="font-size:24px; letter-spacing:7px; color:#007AFF; font-weight:800; margin-bottom:38px;">${c.eb}</div>
+        <div class="big">Your data<br><span style="color:#34C759">stays</span> on<br>your phone.</div>
+        <div class="sub">No ads. No selling.<br>No training models on you.</div>
+        <div class="pill">Get ScreenSense — free 7-day trial</div>
+      </div>
+    </div>`;
+} else {
+  root.innerHTML = `
+    <div class="shot ${c.bg}">
+      <div class="head">
+        <div class="eyebrow">${c.eb}</div>
+        <div class="title">${c.t}</div>
+      </div>
+      <div class="phone-wrap"><iframe src="${c.src}"></iframe></div>
+    </div>`;
+}
+</script>
+</body>
+</html>

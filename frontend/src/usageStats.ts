@@ -1,66 +1,71 @@
 /**
  * Native usage stats helper.
  *
- * In Expo Go / web preview, native UsageStatsManager is unavailable so this
- * resolves to `null` and the app uses the backend-served mock data.
- *
- * In an APK build (development build / prod build), wire a config plugin that
- * exposes a native module called `ExpoUsageStats` with a method `query(start, end)`
- * that returns a list of { app_name, package_name, total_time_in_foreground, last_used }.
- *
- * Required Android permission (already declared in app.json):
- *   android.permission.PACKAGE_USAGE_STATS  (special permission - user must
- *   grant via Settings → Apps → Special access → Usage access)
+ * Wires the local Expo Module `usage-stats` (see /modules/usage-stats) which
+ * exposes Android's `UsageStatsManager` to JS. The module is `requireOptional`
+ * so this file is safe to import in Expo Go / web; functions resolve to
+ * `null` / `false` and the app falls back to the backend mock data path.
  */
-import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 
 export type NativeAppUsage = {
   app_name: string;
   package_name: string;
   total_time_in_foreground: number; // ms
-  last_used: number;                // unix ms
+  last_time_used: number;            // unix ms
+  launch_count?: number;
 };
 
-const isExpoGo =
-  Constants.appOwnership === 'expo' || Constants.executionEnvironment === 'storeClient';
-
-export const nativeUsageAvailable = () => {
-  if (Platform.OS !== 'android') return false;
-  if (isExpoGo) return false;
-  // When the native module is registered, this becomes true.
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
+// Lazy / optional require — only evaluated on Android. On other platforms we
+// short-circuit and never even touch the module so Metro doesn't try to bundle
+// native-only code paths.
+let mod: any = null;
+function getMod() {
+  if (Platform.OS !== 'android') return null;
+  if (mod) return mod;
   try {
-    // Lazy require to avoid bundler errors in environments without the module
-    const native = (global as any).ExpoUsageStatsModule || null;
-    return !!native;
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    mod = require('../modules/usage-stats/src').default;
   } catch {
-    return false;
+    mod = null;
   }
-};
+  return mod;
+}
+
+export function nativeUsageAvailable(): boolean {
+  const m = getMod();
+  return !!m && m.isAvailable();
+}
+
+export async function hasUsageAccessPermission(): Promise<boolean> {
+  const m = getMod();
+  if (!m) return false;
+  return m.hasPermission();
+}
+
+export async function openUsageAccessSettings(): Promise<void> {
+  const m = getMod();
+  if (m) return m.openSettings();
+  // Web / Expo Go fallback — open the app's own settings page.
+  try {
+    const Linking = await import('expo-linking');
+    Linking.openSettings();
+  } catch {
+    /* no-op */
+  }
+}
 
 export async function queryNativeUsage(
   startMs: number,
   endMs: number
 ): Promise<NativeAppUsage[] | null> {
-  if (!nativeUsageAvailable()) return null;
-  try {
-    const native = (global as any).ExpoUsageStatsModule;
-    return await native.query(startMs, endMs);
-  } catch (e) {
-    console.warn('native usage query failed', e);
-    return null;
-  }
+  const m = getMod();
+  if (!m) return null;
+  return m.queryUsage(startMs, endMs);
 }
 
-/** Call this from the onboarding screen to deep-link the user to the
- *  Usage Access settings on Android. On Expo Go this is a no-op. */
-export async function openUsageAccessSettings(): Promise<void> {
-  if (Platform.OS !== 'android' || isExpoGo) return;
-  try {
-    const Linking = await import('expo-linking');
-    await Linking.openSettings();
-  } catch (e) {
-    console.warn('cannot open settings', e);
-  }
+export async function queryTodayUsage(): Promise<NativeAppUsage[] | null> {
+  const m = getMod();
+  if (!m) return null;
+  return m.queryToday();
 }

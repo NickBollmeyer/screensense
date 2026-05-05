@@ -1,0 +1,29 @@
+Get your hours back.
+
+ScreenSense automatically tracks every app, call, and category on your phone — then a private AI coach helps you take back the time you didn't know you were losing.
+
+Most users save 90 minutes a day in their first month. That's 150 days a year of your life back.
+
+WHAT MAKES SCREENSENSE DIFFERENT
+• Auto category tracking — every app and call sorted into Tasks vs Fun the second you open them. No manual logging, ever.
+• AI Habit Coach (powered by Claude Sonnet) — ask "Why am I tired today?" and it pulls your last 30 days. Honest, private, never preachy.
+• Smart limits — set a daily ceiling on Social or Games. We nudge at 80% and stop you mid-session before you spiral.
+• Focus Mode — schedule deep-work windows that silence selected categories.
+• 30-day heatmap — see your worst days, your best days, and your weekly rhythm at a glance.
+• Private by design — your usage data stays on your device. We don't sell, share, or train models on your behavior.
+
+PRICING
+• 7-day free trial, no card required
+• $29.99/year (saves 50%) — just $2.50/month, billed annually
+• Or $4.99/month, cancel anytime
+• Family sharing for up to 5 members on annual
+
+PERMISSIONS
+ScreenSense needs Android's "Usage Access" special permission so it can read app durations. We don't read content, keystrokes, contacts, or call audio — only how long each app was on screen. You can revoke access at any time in system settings and the app stops tracking immediately.
+
+SUPPORT
+hello@screensense.app
+Privacy: https://screensense.app/privacy.html
+Terms: https://screensense.app/terms.html
+
+Take back 90 minutes a day. Starting today.
