@@ -1,0 +1,93 @@
+{
+  "project_name": "ScreenSense",
+  "app_type": "mobile_web_app",
+  "theme": "dark",
+  "archetype": "Archetype 2: The Performance Pro (Adapted for Analytics/Habit Tracking)",
+  "color_palette": {
+    "background_base": "#0A0A0A",
+    "surface": "#121212",
+    "surface_elevated": "#1A1A1A",
+    "primary_accent": "#007AFF",
+    "secondary_accent": "#00FF66",
+    "warning": "#FF3B30",
+    "text_primary": "#FFFFFF",
+    "text_secondary": "#A1A1AA",
+    "border": "rgba(255, 255, 255, 0.1)"
+  },
+  "typography": {
+    "headings_font": "Manrope",
+    "body_font": "DM Sans",
+    "rules": [
+      "H1 (Hero): text-4xl sm:text-5xl tracking-tight font-bold",
+      "H2 (Section): text-2xl sm:text-3xl tracking-tight",
+      "H3 (Widget): text-xl sm:text-2xl font-semibold",
+      "Labels: uppercase text-xs tracking-[0.2em] text-zinc-400",
+      "Body: text-base leading-relaxed"
+    ]
+  },
+  "spacing_and_layout": {
+    "container_padding": "p-6 sm:p-8",
+    "widget_spacing": "gap-4 sm:gap-6",
+    "grid_strategy": "MODE B: THE 'CONTROL ROOM' GRID for density and data correlation",
+    "surface_strategy": "Flat solid surfaces with 1px border-white/10 for cards. Crystal glassmorphism (backdrop-blur-xl bg-black/60) for sticky bottom navigation."
+  },
+  "component_patterns": {
+    "cards": "Flat background (#121212), 1px subtle border (border-white/10), rounded-2xl, no shadow by default. Hover: slight lift (-translate-y-1) and shadow-lg.",
+    "buttons": "Primary buttons: bg-[#007AFF] text-white rounded-full hover:bg-blue-500. Focus: ring-2 ring-blue-400.",
+    "charts": "Use Recharts. Use layered gradients for area charts (e.g., #007AFF to transparent) and segmented progress rings.",
+    "icons": "lucide-react, 24px default size, stroke-width 1.5. No emojis.",
+    "testing": "All interactive and key informational elements MUST include data-testid attribute in kebab-case."
+  },
+  "screen_layouts": [
+    {
+      "name": "Dashboard (Home)",
+      "description": "Daily total screen time focus.",
+      "layout": "Sticky Header with Avatar and Date -> Large Hero Progress Ring (Total Time) -> 'Task vs Fun' Stacked Bar -> Top 3 Categories List.",
+      "components": ["Header", "CircularProgressChart", "StackedBarChart", "CategoryListItem"]
+    },
+    {
+      "name": "Categories Breakdown",
+      "description": "Detailed view of time spent per category.",
+      "layout": "Grid of cards for each category (Productivity, Comm, Ent, AI) with sparkline charts showing weekly trend.",
+      "components": ["CategoryCard", "SparklineChart"]
+    },
+    {
+      "name": "App Usage List",
+      "description": "Granular individual app usage.",
+      "layout": "Search/Filter Bar -> Vertical list of apps with icons, category badges, and time spent (right aligned).",
+      "components": ["SearchBar", "AppListItem", "Badge"]
+    },
+    {
+      "name": "AI Insights",
+      "description": "Personalized daily recommendations.",
+      "layout": "Hero card with AI glowing accent (Tracing Beam effect) -> List of text-based insights and goals to reduce screen time.",
+      "components": ["TracingBeamCard", "InsightItem", "GoalProgress"]
+    },
+    {
+      "name": "Permission Flow (Onboarding)",
+      "description": "Elegant request for Usage Access permission.",
+      "layout": "Full screen immersive layout. Large central illustration/icon -> Value proposition text -> Large primary CTA button.",
+      "components": ["Illustration", "Typography(H1+Body)", "PrimaryButton"]
+    }
+  ],
+  "image_urls": [
+    {
+      "category": "abstract_dark_background",
+      "url": "https://images.unsplash.com/photo-1698156731209-b2fae65b5d24?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzV8MHwxfHNlYXJjaHwyfHxhYnN0cmFjdCUyMGRhcmslMjBncmFkaWVudCUyMGJhY2tncm91bmR8ZW58MHx8fHwxNzc3OTY5NzU0fDA&ixlib=rb-4.1.0&q=85",
+      "description": "Abstract dark background with slight orange/blue glow, use for onboarding screen background."
+    },
+    {
+      "category": "user_avatar",
+      "url": "https://images.pexels.com/photos/6146051/pexels-photo-6146051.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "description": "Professional user avatar for the profile section."
+    }
+  ],
+  "instructions_to_main_agent": [
+    "Strictly follow the color palette. Do NOT use default Tailwind blue/purple.",
+    "Implement bottom tab navigation using fixed positioning and crystal glassmorphism.",
+    "Ensure charts (Recharts) match the dark theme, using the primary and secondary accent colors. Make axes/grid lines subtle (white/10).",
+    "Include data-testid on every interactive element (e.g., data-testid='nav-dashboard-button').",
+    "Use Manrope for all headings and DM Sans for body text.",
+    "Do NOT use generic card shadows; use 1px solid borders on cards to match 'Tactical' look."
+  ]
+}
