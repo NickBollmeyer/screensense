@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>ScreenSense — Play Store Screenshots</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    background: #050507; color: #fff; padding: 24px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .header {
+    text-align: center; margin-bottom: 32px; padding: 24px;
+    background: #0F0F12; border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .header h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+  .header p { color: #A0A0A8; font-size: 13px; margin-top: 6px; }
+  .header code { background: rgba(0,122,255,0.15); padding: 2px 8px; border-radius: 6px; color: #66B2FF; }
+  .grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px;
+    max-width: 1840px; margin: 0 auto;
+  }
+  /* Each "shot" is a 1080×1920 frame at 0.45x scale = 486x864 visible */
+  .shot {
+    width: 486px; height: 864px;
+    border-radius: 24px;
+    position: relative; overflow: hidden;
+    display: flex; flex-direction: column;
+    background: var(--bg);
+    box-shadow: 0 14px 48px rgba(0,0,0,0.5);
+  }
+  .shot .num {
+    position: absolute; top: 14px; left: 16px; z-index: 5;
+    font-size: 10px; font-weight: 800; letter-spacing: 2px;
+    color: rgba(255,255,255,0.5);
+  }
+  .shot .head {
+    padding: 36px 28px 12px; text-align: center; z-index: 2; position: relative;
+  }
+  .shot .eyebrow {
+    color: #007AFF; font-size: 10px; letter-spacing: 3px; font-weight: 800;
+    margin-bottom: 12px; text-transform: uppercase;
+  }
+  .shot .title {
+    font-size: 30px; line-height: 1.08; font-weight: 800; letter-spacing: -1px;
+  }
+  .shot .title .a { color: #007AFF; }
+  .shot .title .r { color: #FF3B30; }
+  .shot .title .g { color: #34C759; }
+  .shot .title .y { color: #FFD60A; }
+
+  /* Phone window – iframe with the actual app */
+  .phone-wrap {
+    position: relative; z-index: 1;
+    flex: 1; margin: 16px 28px 0;
+    border-radius: 22px 22px 0 0;
+    background: #0A0A0A; overflow: hidden;
+    border: 1.5px solid rgba(255,255,255,0.08);
+    border-bottom: none;
+    box-shadow: 0 -8px 30px rgba(0,0,0,0.5);
+  }
+  .phone-wrap iframe {
+    /* Render iframe at native phone size (390x844) and scale up so content fills the wrap */
+    width: 390px; height: 844px;
+    border: 0; display: block;
+    transform-origin: top left;
+    /* phone-wrap inner area is roughly 430 wide; scale 1.10 */
+    transform: scale(1.10);
+  }
+
+  /* Per-screenshot backgrounds */
+  .bg1 { --bg: linear-gradient(160deg, #2a0808 0%, #050507 60%); }
+  .bg2 { --bg: linear-gradient(160deg, #082140 0%, #050507 60%); }
+  .bg3 { --bg: linear-gradient(160deg, #1f0a40 0%, #050507 60%); }
+  .bg4 { --bg: linear-gradient(160deg, #0a2030 0%, #050507 60%); }
+  .bg5 { --bg: linear-gradient(160deg, #0a2a1c 0%, #050507 60%); }
+  .bg6 { --bg: linear-gradient(160deg, #102040 0%, #050507 60%); }
+  .bg7 { --bg: linear-gradient(160deg, #2a1c08 0%, #050507 60%); }
+  .bg8 { --bg: linear-gradient(160deg, #0a1f1c 0%, #050507 60%); }
+
+  /* For card 8 (no iframe — pure marketing) */
+  .marketing {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 40px; text-align: center; position: relative; z-index: 2;
+  }
+  .marketing .big {
+    font-size: 50px; font-weight: 800; line-height: 1.05; letter-spacing: -2px;
+  }
+  .marketing .sub {
+    color: #A0A0A8; margin-top: 22px; font-size: 16px; line-height: 1.6;
+    max-width: 320px;
+  }
+  .marketing .pill {
+    margin-top: 36px;
+    display: inline-block;
+    padding: 14px 28px; background: #007AFF;
+    border-radius: 999px; font-weight: 800; font-size: 15px;
+    box-shadow: 0 8px 24px rgba(0,122,255,0.4);
+  }
+
+  @media (max-width: 1740px) { .grid { grid-template-columns: repeat(3, 1fr); max-width: 1380px; } }
+  @media (max-width: 1280px) { .grid { grid-template-columns: repeat(2, 1fr); max-width: 940px; } }
+  @media (max-width: 880px) { .grid { grid-template-columns: 1fr; max-width: 480px; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>ScreenSense — Google Play Store Screenshots</h1>
+  <p>Eight 9:16 screenshots ready for upload at <code>1080×1920</code>. Open in browser → screenshot each card individually → upload to Play Console.</p>
+</div>
+
+<div class="grid">
+  <!-- 1. Shock screen — the hook -->
+  <div class="shot bg1">
+    <div class="num">01 / 08</div>
+    <div class="head">
+      <div class="eyebrow">YOUR LAST 7 DAYS</div>
+      <div class="title">You're losing<br/><span class="r">150 days a year</span><br/>to your phone.</div>
+    </div>
+    <div class="phone-wrap">
+      <iframe src="http://localhost:3000/onboarding/shock" loading="eager"></iframe>
+    </div>
+  </div>
+
+  <!-- 2. Today dashboard -->
+  <div class="shot bg2">
+    <div class="num">02 / 08</div>
+    <div class="head">
+      <div class="eyebrow">TODAY DASHBOARD</div>
+      <div class="title">Know exactly<br/>where your <span class="a">hours go.</span></div>
+    </div>
+    <div class="phone-wrap">
+      <iframe src="http://localhost:3000/(tabs)" loading="eager"></iframe>
+    </div>
+  </div>
+
+  <!-- 3. AI Coach -->
+  <div class="shot bg3">
+    <div class="num">03 / 08</div>
+    <div class="head">
+      <div class="eyebrow">AI HABIT COACH</div>
+      <div class="title">A coach that<br/><span class="a">knows your patterns.</span></div>
+    </div>
+    <div class="phone-wrap">
+      <iframe src="http://localhost:3000/(tabs)/coach" loading="eager"></iframe>
+    </div>
+  </div>
+
+  <!-- 4. 30-day heatmap -->
+  <div class="shot bg4">
+    <div class="num">04 / 08</div>
+    <div class="head">
+      <div class="eyebrow">30-DAY HEATMAP</div>
+      <div class="title">See <span class="a">30 days</span> of<br/>patterns at a glance.</div>
+    </div>
+    <div class="phone-wrap">
+      <iframe src="http://localhost:3000/(tabs)/stats" loading="eager"></iframe>
+    </div>
+  </div>
+
+  <!-- 5. Apps tab -->
+  <div class="shot bg5">
+    <div class="num">05 / 08</div>
+    <div class="head">
+      <div class="eyebrow">AUTO CATEGORIES</div>
+      <div class="title">Every app,<br/><span class="g">automatically sorted.</span></div>
+    </div>
+    <div class="phone-wrap">
+      <iframe src="http://localhost:3000/(tabs)/apps" loading="eager"></iframe>
+    </div>
+  </div>
+
+  <!-- 6. Profile / Focus Mode -->
+  <div class="shot bg6">
+    <div class="num">06 / 08</div>
+    <div class="head">
+      <div class="eyebrow">FOCUS MODE</div>
+      <div class="title">Schedule deep work.<br/><span class="a">Silence the rest.</span></div>
+    </div>
+    <div class="phone-wrap">
+      <iframe src="http://localhost:3000/(tabs)/profile" loading="eager"></iframe>
+    </div>
+  </div>
+
+  <!-- 7. Paywall -->
+  <div class="shot bg7">
+    <div class="num">07 / 08</div>
+    <div class="head">
+      <div class="eyebrow">SCREENSENSE PRO</div>
+      <div class="title">7-day free trial.<br/><span class="g">Pays for itself</span> in 6 days.</div>
+    </div>
+    <div class="phone-wrap">
+      <iframe src="http://localhost:3000/paywall" loading="eager"></iframe>
+    </div>
+  </div>
+
+  <!-- 8. Privacy / no-ads marketing card -->
+  <div class="shot bg8">
+    <div class="num">08 / 08</div>
+    <div class="marketing">
+      <div class="eyebrow" style="color:#007AFF; font-size:11px; letter-spacing:3px; font-weight:800; margin-bottom:18px;">PRIVATE BY DESIGN</div>
+      <div class="big">Your data<br/><span style="color:#34C759">stays on</span><br/>your phone.</div>
+      <div class="sub">No ads. No selling.<br/>No training models on you.</div>
+      <div class="pill">Get ScreenSense — free 7-day trial</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

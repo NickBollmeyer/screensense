@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Privacy — ScreenSense</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  body { margin:0; background:#0A0A0A; color:#F2F2F7; font-family:'Inter',system-ui,sans-serif; line-height:1.7; }
+  .container { max-width:760px; margin:0 auto; padding:64px 24px; }
+  h1 { font-size:42px; letter-spacing:-1px; font-weight:800; margin:0 0 6px; }
+  h2 { font-size:22px; margin-top:32px; font-weight:700; }
+  h3 { font-size:16px; margin-top:20px; font-weight:700; color:#D1D1D6; }
+  p, li { color:#A0A0A8; font-size:15px; }
+  a { color:#007AFF; }
+  .top { display:flex; align-items:center; gap:12px; padding-bottom:24px; border-bottom:1px solid rgba(255,255,255,0.08); margin-bottom:24px; }
+  .mark { width:32px; height:32px; border-radius:9px; background:rgba(0,122,255,0.15); border:1px solid rgba(0,122,255,0.35); display:flex; align-items:center; justify-content:center; }
+  .mark svg { width:18px; height:18px; color:#007AFF; }
+  .brand { font-weight:800; letter-spacing:3px; font-size:13px; }
+  .meta { color:#6E6E73; font-size:13px; margin-top:6px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a href="./index.html" class="top" style="text-decoration:none; color:inherit;">
+    <span class="mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+    </span>
+    <span class="brand">SCREENSENSE</span>
+  </a>
+  <h1>Privacy Policy</h1>
+  <div class="meta">Effective date: February 2026</div>
+  <p style="margin-top:24px;">
+    ScreenSense is built by an independent developer. This Privacy Policy explains what we collect, why,
+    and the choices you have. We aim to write it in plain English, not lawyer-speak.
+  </p>
+
+  <h2>1. Summary in 30 seconds</h2>
+  <ul>
+    <li>We track <strong>how long you use apps on your phone</strong>. That's the entire product.</li>
+    <li>This data <strong>stays on your device by default</strong>. We do not have a copy.</li>
+    <li>The only data that leaves your phone is what you type into the <strong>AI Coach</strong>, which we send to Anthropic to generate a reply.</li>
+    <li>We do <strong>not</strong> sell your data, train models on it, or share it with advertisers.</li>
+    <li>No ads. ScreenSense is funded by an optional Pro subscription.</li>
+  </ul>
+
+  <h2>2. What we collect</h2>
+  <h3>2.1 On-device only</h3>
+  <ul>
+    <li>App usage statistics from Android's <code>UsageStatsManager</code> — which apps you opened, for how long, and when. Read-only, after you grant <strong>Usage Access</strong>.</li>
+    <li>Call duration aggregates from <code>UsageStatsManager</code> events. <strong>We do not read your call log, contacts, or call content.</strong></li>
+    <li>The categories, daily limits, focus-mode rules, and goals you create.</li>
+    <li>Your AI Coach chat history.</li>
+  </ul>
+
+  <h3>2.2 Sent to our servers</h3>
+  <ul>
+    <li><strong>AI Coach prompts</strong>: your message and a brief summary of today's usage (top 5 apps, total minutes, pickups, notification count) is forwarded to Anthropic's Claude Sonnet 4.5. Not retained after the response.</li>
+    <li><strong>Subscription state</strong>: Google Play purchase token, subscription tier, renewal date.</li>
+    <li><strong>Anonymous error reports</strong> (opt-out): crash stack traces and app version. No personal identifiers.</li>
+  </ul>
+
+  <h3>2.3 What we explicitly do NOT collect</h3>
+  <ul>
+    <li>Specific URLs or web pages you visit</li>
+    <li>Message content from any app</li>
+    <li>Call audio or contact lists</li>
+    <li>Location, advertising IDs, or device fingerprints</li>
+  </ul>
+
+  <h2>3. Your choices</h2>
+  <ul>
+    <li>You can revoke <strong>Usage Access</strong> at any time in Android Settings → Apps → Special access → Usage access. The app will stop tracking immediately.</li>
+    <li>You can delete your AI Coach history from Settings → AI Coach → Clear history. This removes it locally and on our servers.</li>
+    <li>You can export your data to JSON from Settings → Data export.</li>
+    <li>You can request full deletion of any server-side state (subscription record, error logs) at <a href="mailto:privacy@screensense.app">privacy@screensense.app</a>. We comply within 30 days.</li>
+  </ul>
+
+  <h2>4. Children</h2>
+  <p>ScreenSense is not designed for children under 13. We do not knowingly collect data from children under 13.</p>
+
+  <h2>5. Changes to this policy</h2>
+  <p>If we make material changes, we will notify you in-app at next launch. The effective date above is updated each time.</p>
+
+  <h2>6. Contact</h2>
+  <p>Questions or requests: <a href="mailto:privacy@screensense.app">privacy@screensense.app</a></p>
+
+  <p style="margin-top:48px; color:#6E6E73; font-size:13px;">© 2026 ScreenSense Labs · <a href="./index.html">Back to home</a></p>
+</div>
+</body>
+</html>

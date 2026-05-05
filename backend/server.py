@@ -623,6 +623,9 @@ async def chat_with_coach(input: ChatMessageInput):
 # APP SETUP
 # ============================================================
 app.include_router(api_router)
+
+from billing import billing_router  # noqa: E402
+app.include_router(billing_router)
 app.add_middleware(
     CORSMiddleware, allow_credentials=True,
     allow_origins=["*"], allow_methods=["*"], allow_headers=["*"],

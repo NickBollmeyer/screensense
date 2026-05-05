@@ -101,3 +101,77 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: |
+  Build an Android-only habit-tracking app (ScreenSense) that tracks phone/browser
+  app usage time, with pre-defined categorisation, AI insights & coach (Emergent
+  LLM key), Play Store launch assets, "shocking number" onboarding, paywall for
+  $29.99/yr subscription (soft-gated), and a static marketing landing page.
+
+frontend:
+  - task: "Onboarding → Shock → Paywall → Tabs flow with first-launch persistence"
+    implemented: true
+    working: true
+    file: "frontend/app/_layout.tsx, frontend/app/index.tsx, frontend/app/onboarding/shock.tsx, frontend/app/paywall.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: true
+        -agent: "main"
+        -comment: "Registered paywall + onboarding/shock routes in root Stack. Added AsyncStorage flag (screensense.onboarding_complete) so subsequent launches skip directly to (tabs). Soft-gating: paywall has 'Continue with free version' button. Verified end-to-end via Playwright at 390x844: index → shock → paywall → dashboard all rendering correctly."
+
+  - task: "Marketing landing page (screensense.app)"
+    implemented: false
+    working: "NA"
+    file: "/app/landing/index.html"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Pending – static HTML/CSS one-pager."
+
+  - task: "Play Store screenshots (8 annotated)"
+    implemented: false
+    working: "NA"
+    file: "/app/play_store/"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Pending – capture & annotate 8 phone screenshots."
+
+backend:
+  - task: "Billing endpoints (status, plans, start_trial, purchase, cancel, restore)"
+    implemented: true
+    working: true
+    file: "backend/billing.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: true
+        -agent: "main"
+        -comment: "Mock billing wired into FastAPI router. Plans confirmed: Annual $29.99 (save 50%), Monthly $4.99, both with 7-day trial."
+
+metadata:
+  created_by: "main_agent"
+  version: "1.1"
+  test_sequence: 3
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "Marketing landing page (screensense.app)"
+    - "Play Store screenshots (8 annotated)"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+    -agent: "main"
+    -message: "P0 paywall+onboarding routing fix complete. Now building landing page and Play Store screenshots. No backend changes pending — billing already verified."

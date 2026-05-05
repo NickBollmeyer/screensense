@@ -18,6 +18,11 @@ export default function RootLayout() {
           <Stack.Screen name="index" />
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="category/[id]" options={{ presentation: 'card' }} />
+          <Stack.Screen name="onboarding/shock" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen
+            name="paywall"
+            options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+          />
         </Stack>
       </SafeAreaProvider>
     </GestureHandlerRootView>

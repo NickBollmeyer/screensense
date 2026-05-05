@@ -1,39 +1,56 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   ImageBackground,
-  Platform,
-  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Activity, Shield, ArrowRight, Sparkles } from 'lucide-react-native';
 import { theme } from '../src/theme';
+
+const ONBOARDING_KEY = 'screensense.onboarding_complete';
 
 export default function Onboarding() {
   const router = useRouter();
   const [granting, setGranting] = useState(false);
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const done = await AsyncStorage.getItem(ONBOARDING_KEY);
+        if (done === '1') {
+          router.replace('/(tabs)');
+          return;
+        }
+      } catch {
+        // ignore – first launch
+      }
+      setChecking(false);
+    })();
+  }, [router]);
 
   const handleGrant = () => {
     setGranting(true);
     setTimeout(() => {
       setGranting(false);
-      // React Native Web's Alert polyfill ignores button onPress callbacks.
-      // Use window.confirm on web and Alert.alert on native.
-      if (Platform.OS === 'web') {
-        router.replace('/(tabs)');
-      } else {
-        Alert.alert(
-          'Preview Mode',
-          'On a real Android device this opens Settings → Usage Access. The preview uses realistic mock data so you can explore the full UI.',
-          [{ text: 'Continue', onPress: () => router.replace('/(tabs)') }]
-        );
-      }
+      // First-launch: route through the "shocking number" → paywall flow.
+      router.replace('/onboarding/shock');
     }, 400);
   };
+
+  if (checking) {
+    return (
+      <View style={styles.checking}>
+        <ActivityIndicator color={theme.colors.primary} />
+      </View>
+    );
+  }
 
   return (
     <ImageBackground
@@ -111,6 +128,12 @@ export default function Onboarding() {
 
 const styles = StyleSheet.create({
   bg: { flex: 1, backgroundColor: theme.colors.bg },
+  checking: {
+    flex: 1,
+    backgroundColor: theme.colors.bg,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   overlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(10,10,10,0.7)',

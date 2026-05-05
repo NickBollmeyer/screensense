@@ -1,0 +1,622 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ScreenSense — Get your hours back. AI coach for screen-time habits.</title>
+<meta name="description" content="ScreenSense tracks every app, call, and category — then an AI coach helps you take back 90 minutes a day. Android. Free 7-day trial." />
+<meta property="og:title" content="ScreenSense — Get your hours back" />
+<meta property="og:description" content="AI screen-time coach for Android. Most users save 90 minutes a day in their first month." />
+<meta property="og:type" content="website" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    background: #0A0A0A;
+    color: #F2F2F7;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  a { color: inherit; text-decoration: none; }
+  img { max-width: 100%; display: block; }
+  .container { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+  /* Top nav */
+  nav {
+    position: sticky; top: 0; z-index: 50;
+    backdrop-filter: blur(14px);
+    background: rgba(10,10,10,0.7);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .nav-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 800; letter-spacing: 3px; font-size: 13px;
+  }
+  .brand-mark {
+    width: 32px; height: 32px; border-radius: 9px;
+    background: rgba(0,122,255,0.15);
+    border: 1px solid rgba(0,122,255,0.35);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .brand-mark svg { width: 18px; height: 18px; color: #007AFF; }
+  .nav-links { display: flex; gap: 28px; align-items: center; }
+  .nav-links a { font-size: 14px; color: #A0A0A8; }
+  .nav-links a:hover { color: #fff; }
+  .cta-btn {
+    background: #007AFF; color: #fff; font-weight: 700;
+    padding: 10px 18px; border-radius: 999px; font-size: 13px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .cta-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(0,122,255,0.4); }
+  .cta-btn.lg { font-size: 15px; padding: 14px 26px; }
+
+  /* Hero */
+  .hero { padding: 80px 0 60px; position: relative; overflow: hidden; }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(600px circle at 20% 10%, rgba(0,122,255,0.18), transparent 50%),
+      radial-gradient(500px circle at 80% 30%, rgba(255,59,48,0.10), transparent 50%);
+    pointer-events: none;
+  }
+  .hero-grid {
+    display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 48px; align-items: center;
+    position: relative;
+  }
+  .eyebrow {
+    color: #007AFF; font-size: 11px; font-weight: 800; letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+  h1 {
+    font-size: 64px; line-height: 1.05; letter-spacing: -2px; font-weight: 800;
+    margin: 14px 0 18px;
+  }
+  h1 .accent { color: #007AFF; }
+  .hero p.lede {
+    font-size: 18px; color: #A0A0A8; max-width: 520px; margin: 0 0 28px;
+  }
+  .badges { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 32px; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 14px; border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.10);
+    background: rgba(255,255,255,0.03);
+    font-size: 12px; font-weight: 600; color: #D1D1D6;
+  }
+  .badge .dot { width: 6px; height: 6px; border-radius: 50%; background: #34C759; }
+  .hero-buttons { display: flex; gap: 12px; flex-wrap: wrap; }
+  .secondary-link {
+    color: #A0A0A8; font-size: 14px; padding: 14px 0;
+    align-self: center;
+  }
+  .secondary-link:hover { color: #fff; }
+
+  /* Phone mock */
+  .phone {
+    width: 320px; max-width: 100%;
+    margin: 0 auto;
+    border-radius: 42px;
+    background: linear-gradient(160deg, #1F1F22, #0E0E10);
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: 14px;
+    box-shadow:
+      0 30px 60px rgba(0,0,0,0.5),
+      0 12px 28px rgba(0,122,255,0.25);
+  }
+  .phone-screen {
+    border-radius: 30px;
+    background: #0A0A0A;
+    overflow: hidden;
+    aspect-ratio: 9/19.5;
+    display: flex; flex-direction: column;
+  }
+  .phone-bar {
+    height: 26px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 18px;
+    font-size: 11px; color: #fff; font-weight: 600;
+  }
+  .phone-bar .dot-row { display: flex; gap: 4px; }
+  .phone-bar .dot-row span {
+    width: 4px; height: 4px; border-radius: 50%;
+    background: rgba(255,255,255,0.5);
+  }
+  .phone-content {
+    flex: 1; padding: 16px 20px 0; display: flex; flex-direction: column; gap: 14px;
+  }
+  .ph-header { display: flex; flex-direction: column; gap: 2px; }
+  .ph-date { font-size: 9px; letter-spacing: 2px; color: #6E6E73; font-weight: 700; }
+  .ph-title { font-size: 22px; font-weight: 800; }
+  .ph-ring-wrap {
+    display: flex; align-items: center; justify-content: center;
+    margin-top: 4px;
+  }
+  .ph-ring {
+    width: 168px; height: 168px; border-radius: 50%;
+    background:
+      conic-gradient(#FF3B30 0deg 250deg, rgba(255,255,255,0.06) 250deg 360deg);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .ph-ring::after {
+    content: ''; position: absolute; inset: 8px;
+    border-radius: 50%; background: #0A0A0A;
+  }
+  .ph-ring-inner {
+    position: relative; z-index: 1; text-align: center;
+  }
+  .ph-ring-inner .h { font-size: 30px; font-weight: 800; }
+  .ph-ring-inner .l { font-size: 9px; letter-spacing: 2px; color: #6E6E73; font-weight: 700; }
+  .ph-row {
+    display: flex; gap: 8px; margin-top: 4px;
+  }
+  .ph-pill {
+    flex: 1;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 10px;
+    font-size: 10px; color: #A0A0A8;
+  }
+  .ph-pill .v { color: #fff; font-size: 16px; font-weight: 800; display: block; }
+
+  /* Section base */
+  section { padding: 80px 0; position: relative; }
+  .section-eyebrow {
+    color: #007AFF; font-size: 11px; font-weight: 800; letter-spacing: 3px;
+    text-transform: uppercase; text-align: center;
+  }
+  h2 {
+    font-size: 44px; line-height: 1.1; letter-spacing: -1.5px; font-weight: 800;
+    margin: 12px 0 18px; text-align: center;
+  }
+  .section-sub {
+    color: #A0A0A8; font-size: 17px; max-width: 640px; margin: 0 auto 48px;
+    text-align: center;
+  }
+
+  /* Stat strip */
+  .stat-strip {
+    background: #0F0F12;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    padding: 56px 0;
+  }
+  .stat-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+    text-align: center;
+  }
+  .stat .n {
+    font-size: 56px; font-weight: 800; letter-spacing: -2px; line-height: 1;
+    background: linear-gradient(180deg, #fff, #A0A0A8);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .stat .l {
+    color: #A0A0A8; margin-top: 8px; font-size: 14px;
+  }
+
+  /* Features */
+  .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .feature {
+    background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 22px;
+    padding: 28px 24px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .feature:hover { border-color: rgba(0,122,255,0.4); transform: translateY(-4px); }
+  .feature .ic {
+    width: 40px; height: 40px; border-radius: 12px;
+    background: rgba(0,122,255,0.15);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 18px;
+    color: #007AFF;
+  }
+  .feature h3 { font-size: 18px; margin: 0 0 8px; font-weight: 700; }
+  .feature p { color: #A0A0A8; font-size: 14px; margin: 0; line-height: 1.6; }
+
+  /* How it works */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .step {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 22px;
+    padding: 28px;
+    position: relative;
+  }
+  .step .num {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: rgba(0,122,255,0.2);
+    color: #007AFF; font-weight: 800; font-size: 13px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 16px;
+  }
+  .step h3 { font-size: 17px; margin: 0 0 8px; font-weight: 700; }
+  .step p { color: #A0A0A8; font-size: 14px; margin: 0; }
+
+  /* Pricing */
+  .price-card {
+    max-width: 460px; margin: 0 auto;
+    background: linear-gradient(180deg, rgba(0,122,255,0.10), rgba(0,122,255,0.02));
+    border: 1.5px solid rgba(0,122,255,0.5);
+    border-radius: 28px;
+    padding: 36px 32px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0,122,255,0.18);
+  }
+  .price-tag {
+    position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    background: #34C759; color: #000; font-weight: 900; font-size: 10px;
+    padding: 4px 12px; border-radius: 999px; letter-spacing: 1.5px;
+  }
+  .price-card .plan-name { font-size: 13px; letter-spacing: 2px; color: #007AFF; font-weight: 800; }
+  .price-card .price {
+    font-size: 56px; font-weight: 800; letter-spacing: -2px; margin: 8px 0 4px;
+  }
+  .price-card .price small { font-size: 18px; color: #A0A0A8; font-weight: 600; }
+  .price-card .per-month { color: #A0A0A8; font-size: 14px; margin-bottom: 24px; }
+  .price-card ul {
+    list-style: none; padding: 0; margin: 0 0 24px; text-align: left;
+  }
+  .price-card ul li {
+    padding: 8px 0; font-size: 14px; color: #D1D1D6;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .price-card ul li::before {
+    content: '✓'; color: #34C759; font-weight: 900; font-size: 14px;
+  }
+  .price-fine {
+    color: #6E6E73; font-size: 11px; margin-top: 14px; line-height: 1.6;
+  }
+  .price-mini {
+    text-align: center; margin-top: 20px;
+    color: #A0A0A8; font-size: 13px;
+  }
+
+  /* FAQ */
+  .faq { max-width: 720px; margin: 0 auto; }
+  details {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 18px 22px;
+    margin-bottom: 10px;
+  }
+  details summary {
+    cursor: pointer; font-weight: 700; font-size: 16px;
+    list-style: none; display: flex; justify-content: space-between; align-items: center;
+  }
+  details summary::after { content: '+'; color: #007AFF; font-size: 20px; font-weight: 800; }
+  details[open] summary::after { content: '−'; }
+  details p { margin: 12px 0 0; color: #A0A0A8; font-size: 14px; line-height: 1.7; }
+
+  /* Final CTA */
+  .final-cta {
+    text-align: center;
+    padding: 100px 24px;
+    background: linear-gradient(180deg, transparent, rgba(0,122,255,0.08));
+  }
+  .final-cta h2 { font-size: 56px; margin-bottom: 16px; }
+  .final-cta p { color: #A0A0A8; font-size: 18px; margin-bottom: 32px; }
+
+  /* Footer */
+  footer {
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding: 40px 0 60px;
+    color: #6E6E73; font-size: 13px;
+  }
+  .foot-grid {
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;
+  }
+  .foot-links { display: flex; gap: 22px; flex-wrap: wrap; }
+  .foot-links a:hover { color: #fff; }
+
+  /* Responsive */
+  @media (max-width: 880px) {
+    h1 { font-size: 44px; }
+    h2 { font-size: 32px; }
+    .hero { padding: 56px 0 40px; }
+    .hero-grid { grid-template-columns: 1fr; gap: 32px; text-align: left; }
+    .features, .steps { grid-template-columns: 1fr; }
+    .stat-grid { grid-template-columns: 1fr; gap: 32px; }
+    .stat .n { font-size: 44px; }
+    .nav-links a:not(.cta-btn) { display: none; }
+    .final-cta h2 { font-size: 36px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="container nav-inner">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      </div>
+      SCREENSENSE
+    </div>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#how">How it works</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#" class="cta-btn">Get the app</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="container hero-grid">
+    <div>
+      <div class="eyebrow">AI Screen-time Coach · Android</div>
+      <h1>Get your hours <span class="accent">back.</span></h1>
+      <p class="lede">
+        ScreenSense automatically tracks every app, call, and category — then an AI coach
+        helps you take back the time you didn't know you were losing.
+      </p>
+      <div class="badges">
+        <span class="badge"><span class="dot"></span> Most users save 90 min/day</span>
+        <span class="badge">7-day free trial · No card</span>
+        <span class="badge">Private · stays on your device</span>
+      </div>
+      <div class="hero-buttons">
+        <a href="#pricing" class="cta-btn lg">Start free trial</a>
+        <a href="#how" class="secondary-link">See how it works →</a>
+      </div>
+    </div>
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="phone-bar">
+          <span>9:41</span>
+          <div class="dot-row"><span></span><span></span><span></span></div>
+        </div>
+        <div class="phone-content">
+          <div class="ph-header">
+            <span class="ph-date">TUESDAY · MAY 5</span>
+            <span class="ph-title">Today</span>
+          </div>
+          <div class="ph-ring-wrap">
+            <div class="ph-ring">
+              <div class="ph-ring-inner">
+                <div class="h">9h 4m</div>
+                <div class="l">SCREEN TIME</div>
+              </div>
+            </div>
+          </div>
+          <div class="ph-row">
+            <div class="ph-pill"><span class="v">119</span>PICKUPS</div>
+            <div class="ph-pill"><span class="v">132</span>NOTIFS</div>
+            <div class="ph-pill"><span class="v">23m</span>CALLS</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Stats strip -->
+<section class="stat-strip" style="padding-top:56px; padding-bottom:56px;">
+  <div class="container stat-grid">
+    <div class="stat">
+      <div class="n">90m</div>
+      <div class="l">average daily time saved in month one</div>
+    </div>
+    <div class="stat">
+      <div class="n">150d</div>
+      <div class="l">a year reclaimed from unconscious phone use</div>
+    </div>
+    <div class="stat">
+      <div class="n">6 days</div>
+      <div class="l">until Pro pays for itself in saved time</div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section id="features">
+  <div class="container">
+    <div class="section-eyebrow">What's inside</div>
+    <h2>Everything you need to take your hours back.</h2>
+    <p class="section-sub">
+      Built specifically for people who feel like their phone is winning. No social feeds.
+      No engagement tricks. Just clarity, accountability, and a coach that knows your patterns.
+    </p>
+    <div class="features">
+      <div class="feature">
+        <div class="ic">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        </div>
+        <h3>Auto category tracking</h3>
+        <p>Every app and call sorted into Tasks vs Fun the second you open them — no manual logging, ever.</p>
+      </div>
+      <div class="feature">
+        <div class="ic">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <h3>AI Coach that knows you</h3>
+        <p>Ask "Why am I tired today?" and it pulls your last 30 days. Honest, private, and never preachy.</p>
+      </div>
+      <div class="feature">
+        <div class="ic">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+        </div>
+        <h3>Smart limits</h3>
+        <p>Set a daily ceiling on Social or Games. We nudge you at 80% — and stop mid-session before you spiral.</p>
+      </div>
+      <div class="feature">
+        <div class="ic">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </div>
+        <h3>Focus Mode</h3>
+        <p>Schedule deep-work windows that silence selected categories. Customizable per day, per category.</p>
+      </div>
+      <div class="feature">
+        <div class="ic">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
+        </div>
+        <h3>30-day heatmap</h3>
+        <p>See the full pattern — your worst days, your best days, your weekly rhythm — at a glance.</p>
+      </div>
+      <div class="feature">
+        <div class="ic">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h3>Private by default</h3>
+        <p>Your usage data stays on your device. We don't sell, share, or train models on your behavior.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How it works -->
+<section id="how" style="background:#0F0F12;">
+  <div class="container">
+    <div class="section-eyebrow">How it works</div>
+    <h2>Three steps. Then it runs in the background.</h2>
+    <p class="section-sub">
+      Setup takes under a minute. After that ScreenSense passively learns your habits
+      and gets sharper every week.
+    </p>
+    <div class="steps">
+      <div class="step">
+        <div class="num">1</div>
+        <h3>Grant Usage Access</h3>
+        <p>Android's standard permission. We use it to read app durations only — never content, never keystrokes.</p>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <h3>See your shocking number</h3>
+        <p>Your last 7 days converted into working days and yearly hours. Most people are stunned by week one.</p>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <h3>Talk to your AI coach</h3>
+        <p>Daily insights, weekly reviews, and on-demand answers. It learns what motivates you and adjusts.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonial-style block -->
+<section style="padding:60px 0;">
+  <div class="container" style="max-width:760px; text-align:center;">
+    <div class="section-eyebrow">Why an AI coach</div>
+    <h2 style="font-size:32px; line-height:1.2;">
+      "Limits don't fix habits. <span style="color:#007AFF;">Awareness</span> does."
+    </h2>
+    <p class="section-sub" style="margin-top:18px;">
+      Other screen-time apps just block apps. ScreenSense is the first to combine real-time
+      tracking with a coach that explains <em>why</em> you reach for your phone — and
+      proposes a smaller, kinder substitute habit you'll actually keep.
+    </p>
+  </div>
+</section>
+
+<!-- Pricing -->
+<section id="pricing" style="padding-bottom: 60px;">
+  <div class="container">
+    <div class="section-eyebrow">Simple pricing</div>
+    <h2>One plan. No upsells.</h2>
+    <p class="section-sub">
+      Start with a 7-day free trial — no card required. Cancel anytime in Google Play.
+    </p>
+    <div class="price-card">
+      <div class="price-tag">BEST VALUE · SAVE 50%</div>
+      <div class="plan-name">SCREENSENSE PRO</div>
+      <div class="price">$29.99<small>/year</small></div>
+      <div class="per-month">Just $2.50/month, billed annually</div>
+      <ul>
+        <li>Unlimited AI Coach with memory</li>
+        <li>30-day heatmap & full habit history</li>
+        <li>Unlimited daily limits & Focus Mode presets</li>
+        <li>Weekly trend reports & data export</li>
+        <li>Family sharing — up to 5 members</li>
+      </ul>
+      <a href="#" class="cta-btn lg" style="width:100%; justify-content:center;">Start 7-day free trial</a>
+      <div class="price-fine">
+        Or pay $4.99/month if you'd rather. After the trial, the selected plan starts unless cancelled.
+        Pricing in USD. Tax may apply.
+      </div>
+    </div>
+    <div class="price-mini">
+      Cancel anytime in Google Play · 30-day refund window for annual purchases
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section style="background:#0F0F12;">
+  <div class="container">
+    <div class="section-eyebrow">FAQ</div>
+    <h2>Things people ask first.</h2>
+    <div class="faq">
+      <details>
+        <summary>What data leaves my phone?</summary>
+        <p>Only the AI coach messages you choose to send go to our server (so the model can respond).
+        Raw app durations, package names, and behavioral patterns stay on-device. We never sell or share data.</p>
+      </details>
+      <details>
+        <summary>Why $29.99/year and not free?</summary>
+        <p>Because "free" usually means selling your attention back to you. ScreenSense is paid so it stays on
+        <em>your</em> side: no ads, no engagement loops, no dark patterns. The AI coach also has real running costs
+        we pass on at near cost.</p>
+      </details>
+      <details>
+        <summary>Will it actually block apps?</summary>
+        <p>Yes — Pro lets you set hard daily limits per category (Social, Games, Streaming, …) and a
+        Focus Mode that silences notifications on a schedule. We don't break Android's accessibility rules,
+        so blocks are graceful, not aggressive.</p>
+      </details>
+      <details>
+        <summary>iPhone version?</summary>
+        <p>iOS doesn't expose per-app usage to third-party developers, so we're Android-only at launch.
+        We're following Apple's APIs and will ship an iOS version the moment it becomes possible to do this honestly.</p>
+      </details>
+      <details>
+        <summary>Does the AI coach replace a therapist?</summary>
+        <p>No. It's a habit coach trained on your usage data, not a mental-health professional.
+        If you're struggling beyond screen-time, please talk to a real human. The coach will tell you the same.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- Final CTA -->
+<section class="final-cta">
+  <div class="container">
+    <h2>Take back 90 minutes <br/>starting today.</h2>
+    <p>7-day free trial. Cancel anytime. Android only.</p>
+    <a href="#" class="cta-btn lg">Start free trial</a>
+  </div>
+</section>
+
+<footer>
+  <div class="container foot-grid">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      </div>
+      SCREENSENSE
+    </div>
+    <div class="foot-links">
+      <a href="./privacy.html">Privacy</a>
+      <a href="./terms.html">Terms</a>
+      <a href="mailto:hello@screensense.app">Contact</a>
+      <span>© 2026 ScreenSense Labs</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
