@@ -5,6 +5,40 @@ import { BlurView } from 'expo-blur';
 import { LayoutDashboard, LayoutGrid, Sparkles, User } from 'lucide-react-native';
 import { theme } from '../../src/theme';
 
+// Defined at module scope so React doesn't recreate the component on every render
+// (prevents subtle hook-count and remount issues in descendants).
+const TabBarBlur = () => (
+  <BlurView
+    intensity={Platform.OS === 'ios' ? 70 : 90}
+    tint="dark"
+    style={StyleSheet.absoluteFill}
+  />
+);
+
+const DashboardIcon = ({ color, focused }: { color: string; focused: boolean }) => (
+  <View testID="tab-dashboard">
+    <LayoutDashboard size={focused ? 22 : 20} color={color} strokeWidth={2} />
+  </View>
+);
+
+const AppsIcon = ({ color, focused }: { color: string; focused: boolean }) => (
+  <View testID="tab-apps">
+    <LayoutGrid size={focused ? 22 : 20} color={color} strokeWidth={2} />
+  </View>
+);
+
+const InsightsIcon = ({ color, focused }: { color: string; focused: boolean }) => (
+  <View testID="tab-insights">
+    <Sparkles size={focused ? 22 : 20} color={color} strokeWidth={2} />
+  </View>
+);
+
+const ProfileIcon = ({ color, focused }: { color: string; focused: boolean }) => (
+  <View testID="tab-profile">
+    <User size={focused ? 22 : 20} color={color} strokeWidth={2} />
+  </View>
+);
+
 export default function TabsLayout() {
   return (
     <Tabs
@@ -13,13 +47,7 @@ export default function TabsLayout() {
         tabBarActiveTintColor: theme.colors.primary,
         tabBarInactiveTintColor: theme.colors.textMuted,
         tabBarStyle: styles.tabBar,
-        tabBarBackground: () => (
-          <BlurView
-            intensity={Platform.OS === 'ios' ? 70 : 90}
-            tint="dark"
-            style={StyleSheet.absoluteFill}
-          />
-        ),
+        tabBarBackground: TabBarBlur,
         tabBarLabelStyle: {
           fontSize: 10,
           fontWeight: '700',
@@ -31,47 +59,19 @@ export default function TabsLayout() {
     >
       <Tabs.Screen
         name="index"
-        options={{
-          title: 'Today',
-          tabBarIcon: ({ color, focused }) => (
-            <View testID="tab-dashboard">
-              <LayoutDashboard size={focused ? 22 : 20} color={color} strokeWidth={2} />
-            </View>
-          ),
-        }}
+        options={{ title: 'Today', tabBarIcon: DashboardIcon }}
       />
       <Tabs.Screen
         name="apps"
-        options={{
-          title: 'Apps',
-          tabBarIcon: ({ color, focused }) => (
-            <View testID="tab-apps">
-              <LayoutGrid size={focused ? 22 : 20} color={color} strokeWidth={2} />
-            </View>
-          ),
-        }}
+        options={{ title: 'Apps', tabBarIcon: AppsIcon }}
       />
       <Tabs.Screen
         name="insights"
-        options={{
-          title: 'Insights',
-          tabBarIcon: ({ color, focused }) => (
-            <View testID="tab-insights">
-              <Sparkles size={focused ? 22 : 20} color={color} strokeWidth={2} />
-            </View>
-          ),
-        }}
+        options={{ title: 'Insights', tabBarIcon: InsightsIcon }}
       />
       <Tabs.Screen
         name="profile"
-        options={{
-          title: 'Profile',
-          tabBarIcon: ({ color, focused }) => (
-            <View testID="tab-profile">
-              <User size={focused ? 22 : 20} color={color} strokeWidth={2} />
-            </View>
-          ),
-        }}
+        options={{ title: 'Profile', tabBarIcon: ProfileIcon }}
       />
     </Tabs>
   );

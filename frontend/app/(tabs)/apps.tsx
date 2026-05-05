@@ -127,7 +127,7 @@ export default function AppsScreen() {
       </ScrollView>
 
       <View style={styles.summaryRow}>
-        <Text style={styles.summaryText}>
+        <Text style={styles.summaryText} testID="apps-summary">
           {filtered.length} app{filtered.length !== 1 ? 's' : ''} ·{' '}
           <Text style={{ color: theme.colors.text, fontWeight: '700' }}>
             {formatDuration(totalFiltered)}
@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     height: 44,
   },
-  chipRow: { paddingHorizontal: 20, paddingVertical: 14, gap: 8 },
+  chipRow: { paddingHorizontal: 20, paddingVertical: 14, gap: 8, alignItems: 'center' },
   chip: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -247,7 +247,8 @@ const styles = StyleSheet.create({
   chipTextActive: { color: theme.colors.primary, fontWeight: '700' },
   summaryRow: {
     paddingHorizontal: 20,
-    marginBottom: 4,
+    marginTop: 4,
+    marginBottom: 8,
   },
   summaryText: {
     color: theme.colors.textMuted,

@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   ImageBackground,
+  Platform,
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -18,21 +19,20 @@ export default function Onboarding() {
 
   const handleGrant = () => {
     setGranting(true);
-    // In a real APK build, this would open Settings -> Usage Access.
-    // For preview we simulate and proceed to the dashboard.
     setTimeout(() => {
-      Alert.alert(
-        'Preview Mode',
-        'On a real Android device this opens Settings → Usage Access. The preview uses realistic mock data so you can explore the full UI.',
-        [
-          {
-            text: 'Continue',
-            onPress: () => router.replace('/(tabs)'),
-          },
-        ]
-      );
       setGranting(false);
-    }, 600);
+      // React Native Web's Alert polyfill ignores button onPress callbacks.
+      // Use window.confirm on web and Alert.alert on native.
+      if (Platform.OS === 'web') {
+        router.replace('/(tabs)');
+      } else {
+        Alert.alert(
+          'Preview Mode',
+          'On a real Android device this opens Settings → Usage Access. The preview uses realistic mock data so you can explore the full UI.',
+          [{ text: 'Continue', onPress: () => router.replace('/(tabs)') }]
+        );
+      }
+    }, 400);
   };
 
   return (
