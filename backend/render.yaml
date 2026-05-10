@@ -1,38 +1,31 @@
-# Render Blueprint — deploy ScreenSense backend + MongoDB in one click.
-# https://render.com/docs/blueprint-spec
+# Render Blueprint — ScreenSense backend (FastAPI on Docker).
 #
-# Usage:
+# We use MongoDB Atlas (free tier) for the database, since Render no longer
+# offers managed Mongo. The MONGO_URL secret is set in the dashboard.
+#
+# Deploy:
 #   1. Push this repo to GitHub.
-#   2. https://dashboard.render.com/select-repo?type=blueprint
-#   3. Pick this repo → it auto-reads /app/backend/render.yaml
-#   4. After the first deploy, open the web service → Environment →
-#      add EMERGENT_LLM_KEY (from your Emergent profile) and (after §3 of
-#      STEP_BY_STEP_GUIDE) upload google-service-account.json as a Secret File
-#      with mountPath /etc/secrets/google-service-account.json, then change
-#      backend/billing.py to read from /etc/secrets/google-service-account.json.
+#   2. https://dashboard.render.com/blueprints/new → pick this repo.
+#   3. Render auto-reads /backend/render.yaml.
+#   4. Set the four env vars when prompted (already populated below as 'sync: false').
 
 services:
   - type: web
     name: screensense-api
-    plan: starter            # $7/mo or use 'free' for the always-spinning-down free tier
+    plan: free                        # free tier — sleeps after 15 min idle
     runtime: docker
-    dockerfilePath: ./backend/Dockerfile
-    dockerContext: ./backend
+    region: oregon
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
     healthCheckPath: /api/
     autoDeploy: true
     envVars:
       - key: MONGO_URL
-        fromDatabase:
-          name: screensense-mongo
-          property: connectionString
+        sync: false                   # set in dashboard → Atlas connection string
+      - key: DB_NAME
+        value: screensense
       - key: EMERGENT_LLM_KEY
-        sync: false           # "sync: false" forces you to set it in the dashboard
+        sync: false                   # set in dashboard
       - key: PORT
-        value: 10000
-    domains:
-      - api.screensense.app   # delete this line if you don't have a custom domain yet
-
-databases:
-  - name: screensense-mongo
-    plan: starter             # $7/mo Mongo (or use 'free' tier 256 MB)
-    databaseName: screensense
+        value: "10000"
