@@ -20,7 +20,7 @@
       },
       "channel": "preview",
       "env": {
-        "EXPO_PUBLIC_BACKEND_URL": "https://api.screensense.app"
+        "EXPO_PUBLIC_BACKEND_URL": "https://screensense-api.onrender.com"
       }
     },
     "production": {
@@ -31,7 +31,7 @@
       },
       "channel": "production",
       "env": {
-        "EXPO_PUBLIC_BACKEND_URL": "https://api.screensense.app"
+        "EXPO_PUBLIC_BACKEND_URL": "https://screensense-api.onrender.com"
       }
     }
   },
