@@ -67,9 +67,10 @@
     },
     "extra": {
       "eas": {
-        "projectId": "REPLACE_WITH_YOUR_EAS_PROJECT_ID"
-      }
+        "projectId": "92494439-2114-47b2-9e23-5d8b2775e2fd"
+      },
+      "router": {}
     },
-    "owner": "REPLACE_WITH_YOUR_EXPO_USERNAME"
+    "owner": "bolly63"
   }
 }
