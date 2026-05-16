@@ -13,6 +13,7 @@ import { Search, X, ChevronRight } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { theme, formatDuration } from '../../src/theme';
 import { api, TodayUsage, CategoryMeta } from '../../src/api';
+import SwipeableTab from '../../src/components/SwipeableTab';
 
 export default function AppsScreen() {
   const router = useRouter();
@@ -64,7 +65,8 @@ export default function AppsScreen() {
   const totalFiltered = filtered.reduce((s, a) => s + a.duration_seconds, 0);
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
+    <SwipeableTab>
+      <SafeAreaView style={styles.safe} edges={['top']}>
       <View style={styles.header}>
         <Text style={styles.eyebrow}>USAGE</Text>
         <Text style={styles.title}>Apps</Text>
@@ -181,6 +183,7 @@ export default function AppsScreen() {
         )}
       </ScrollView>
     </SafeAreaView>
+    </SwipeableTab>
   );
 }
 

@@ -24,6 +24,7 @@ import CircularProgress from '../../src/components/CircularProgress';
 import TaskFunBar from '../../src/components/TaskFunBar';
 import WeekChart from '../../src/components/WeekChart';
 import CategoryIcon from '../../src/components/CategoryIcon';
+import SwipeableTab from '../../src/components/SwipeableTab';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -89,7 +90,8 @@ export default function Dashboard() {
   const trendUp = diff > 0;
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
+    <SwipeableTab>
+      <SafeAreaView style={styles.safe} edges={['top']}>
       <ScrollView
         contentContainerStyle={styles.scroll}
         refreshControl={
@@ -324,6 +326,7 @@ export default function Dashboard() {
         })}
       </ScrollView>
     </SafeAreaView>
+    </SwipeableTab>
   );
 }
 

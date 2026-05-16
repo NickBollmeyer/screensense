@@ -22,6 +22,7 @@ import { theme, formatDurationShort } from '../../src/theme';
 import { api, Insight, MonthUsage } from '../../src/api';
 import CircularProgress from '../../src/components/CircularProgress';
 import MonthlyHeatmap from '../../src/components/MonthlyHeatmap';
+import SwipeableTab from '../../src/components/SwipeableTab';
 
 export default function StatsScreen() {
   const [insight, setInsight] = useState<Insight | null>(null);
@@ -69,7 +70,8 @@ export default function StatsScreen() {
   const scoreLabel = score >= 75 ? 'Excellent' : score >= 50 ? 'Good' : 'Needs focus';
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
+    <SwipeableTab>
+      <SafeAreaView style={styles.safe} edges={['top']}>
       <ScrollView
         contentContainerStyle={styles.scroll}
         refreshControl={
@@ -225,6 +227,7 @@ export default function StatsScreen() {
         </View>
       </ScrollView>
     </SafeAreaView>
+    </SwipeableTab>
   );
 }
 

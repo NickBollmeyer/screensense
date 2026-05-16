@@ -154,7 +154,7 @@ export const api = {
   getMonth: () => get('/usage/month', { maxAge: 5 * 60_000 }),
   getCategories: () => get<CategoryMeta[]>('/categories', { maxAge: 60 * 60_000 }),
   getCategoryDetail: (id: string) =>
-    get(`/categories/${id}`, { maxAge: 60_000 }),
+    get(`/usage/category/${id}`, { maxAge: 60_000 }),
   getApps: () => get<AppUsage[]>('/apps', { maxAge: 60_000 }),
   getGoals: () => get('/goals', { maxAge: 30_000 }),
   createGoal: (b: any) => post('/goals', b),

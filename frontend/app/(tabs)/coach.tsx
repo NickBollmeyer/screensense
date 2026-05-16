@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Sparkles, Send, RefreshCw, Trash2 } from 'lucide-react-native';
 import { theme } from '../../src/theme';
 import { api, ChatMsg } from '../../src/api';
+import SwipeableTab from '../../src/components/SwipeableTab';
 
 const QUICK_PROMPTS = [
   'How was my day?',
@@ -96,7 +97,8 @@ export default function CoachScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
+    <SwipeableTab>
+      <SafeAreaView style={styles.safe} edges={['top']}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -229,6 +231,7 @@ export default function CoachScreen() {
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
+    </SwipeableTab>
   );
 }
 

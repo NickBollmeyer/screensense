@@ -26,6 +26,7 @@ import {
 import { theme } from '../../src/theme';
 import { api, CategoryMeta, Goal, FocusMode } from '../../src/api';
 import CategoryIcon from '../../src/components/CategoryIcon';
+import SwipeableTab from '../../src/components/SwipeableTab';
 
 export default function ProfileScreen() {
   const [cats, setCats] = useState<CategoryMeta[]>([]);
@@ -113,7 +114,8 @@ export default function ProfileScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
+    <SwipeableTab>
+      <SafeAreaView style={styles.safe} edges={['top']}>
       <ScrollView contentContainerStyle={styles.scroll} testID="profile-scroll">
         <View style={styles.header}>
           <Text style={styles.eyebrow}>SETTINGS</Text>
@@ -459,6 +461,7 @@ export default function ProfileScreen() {
         </View>
       </Modal>
     </SafeAreaView>
+    </SwipeableTab>
   );
 }
 
