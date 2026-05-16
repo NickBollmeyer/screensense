@@ -9,8 +9,10 @@ import {
   TextInput,
   Alert,
   Switch,
+  Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import {
   Target,
   Bell,
@@ -22,13 +24,22 @@ import {
   Trash2,
   Moon,
   Clock,
+  Crown,
+  Star,
 } from 'lucide-react-native';
 import { theme } from '../../src/theme';
 import { api, CategoryMeta, Goal, FocusMode } from '../../src/api';
 import CategoryIcon from '../../src/components/CategoryIcon';
 import SwipeableTab from '../../src/components/SwipeableTab';
 
+const PRIVACY_URL = 'https://screensense-app.vercel.app/privacy.html';
+const TERMS_URL = 'https://screensense-app.vercel.app/terms.html';
+const SUPPORT_EMAIL = 'hello@screensense.app';
+const PLAY_STORE_URL =
+  'https://play.google.com/store/apps/details?id=app.screensense.android';
+
 export default function ProfileScreen() {
+  const router = useRouter();
   const [cats, setCats] = useState<CategoryMeta[]>([]);
   const [goals, setGoals] = useState<Goal[]>([]);
   const [focus, setFocus] = useState<FocusMode | null>(null);
@@ -243,26 +254,83 @@ export default function ProfileScreen() {
 
         {/* Settings list */}
         <Text style={[styles.sectionTitle, { marginTop: 28, marginBottom: 12 }]}>
+          ScreenSense Pro
+        </Text>
+
+        <SettingsRow
+          icon={<Crown size={18} color="#FFD60A" strokeWidth={2.2} />}
+          label="View plans & pricing"
+          subLabel="Founders Lifetime, Annual or Monthly"
+          tint="#FFD60A"
+          testID="setting-view-pro"
+          onPress={() => router.push('/paywall')}
+        />
+        <SettingsRow
+          icon={<Star size={18} color={theme.colors.text} strokeWidth={2} />}
+          label="Rate ScreenSense"
+          subLabel="Help others discover the app"
+          testID="setting-rate"
+          onPress={async () => {
+            try {
+              const supported = await Linking.canOpenURL(PLAY_STORE_URL);
+              if (supported) {
+                Linking.openURL(PLAY_STORE_URL);
+              } else {
+                Alert.alert(
+                  'Coming soon',
+                  'ScreenSense is not yet live on the Play Store. Once it is, this will open the rating page.'
+                );
+              }
+            } catch {
+              Alert.alert('Could not open Play Store');
+            }
+          }}
+        />
+
+        <Text style={[styles.sectionTitle, { marginTop: 28, marginBottom: 12 }]}>
           Preferences
         </Text>
 
         <SettingsRow
           icon={<Bell size={18} color={theme.colors.text} strokeWidth={2} />}
           label="Notifications"
-          subLabel="Daily summary at 9 PM"
+          subLabel="Manage in system settings"
           testID="setting-notifications"
+          onPress={() => Linking.openSettings()}
         />
         <SettingsRow
           icon={<Shield size={18} color={theme.colors.text} strokeWidth={2} />}
-          label="Privacy"
+          label="Privacy policy"
           subLabel="On-device tracking only"
           testID="setting-privacy"
+          onPress={() => Linking.openURL(PRIVACY_URL)}
+        />
+        <SettingsRow
+          icon={<Shield size={18} color={theme.colors.text} strokeWidth={2} />}
+          label="Terms of service"
+          subLabel="Rules of the road"
+          testID="setting-terms"
+          onPress={() => Linking.openURL(TERMS_URL)}
         />
         <SettingsRow
           icon={<HelpCircle size={18} color={theme.colors.text} strokeWidth={2} />}
           label="Help & feedback"
-          subLabel="Reach out to support"
+          subLabel={`Email ${SUPPORT_EMAIL}`}
           testID="setting-help"
+          onPress={() => {
+            const body = encodeURIComponent(
+              'Hey ScreenSense team,\n\n[Your feedback or question here]\n\n— Sent from ScreenSense v1.1'
+            );
+            const subject = encodeURIComponent('ScreenSense feedback');
+            Linking.openURL(
+              `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`
+            ).catch(() =>
+              Alert.alert(
+                'No mail app',
+                `Please email us at ${SUPPORT_EMAIL}`
+              )
+            );
+          }}
         />
 
         <Text style={styles.footerText}>ScreenSense · v1.1 · Preview build</Text>
@@ -470,18 +538,35 @@ const SettingsRow = ({
   label,
   subLabel,
   testID,
+  onPress,
+  rightLabel,
+  tint,
 }: {
   icon: React.ReactNode;
   label: string;
   subLabel?: string;
   testID: string;
+  onPress?: () => void;
+  rightLabel?: string;
+  tint?: string;
 }) => (
-  <TouchableOpacity style={styles.settingsRow} testID={testID} activeOpacity={0.7}>
+  <TouchableOpacity
+    style={styles.settingsRow}
+    testID={testID}
+    activeOpacity={0.7}
+    onPress={onPress}
+    disabled={!onPress}
+  >
     <View style={styles.settingsIcon}>{icon}</View>
     <View style={{ flex: 1 }}>
-      <Text style={styles.settingsLabel}>{label}</Text>
+      <Text style={[styles.settingsLabel, tint ? { color: tint } : null]}>
+        {label}
+      </Text>
       {subLabel ? <Text style={styles.settingsSub}>{subLabel}</Text> : null}
     </View>
+    {rightLabel ? (
+      <Text style={styles.settingsRight}>{rightLabel}</Text>
+    ) : null}
     <ChevronRight size={16} color={theme.colors.textMuted} strokeWidth={2} />
   </TouchableOpacity>
 );
@@ -671,6 +756,12 @@ const styles = StyleSheet.create({
   },
   settingsLabel: { color: theme.colors.text, fontSize: 14, fontWeight: '600' },
   settingsSub: { color: theme.colors.textMuted, fontSize: 12, marginTop: 2 },
+  settingsRight: {
+    color: theme.colors.textMuted,
+    fontSize: 12,
+    fontWeight: '600',
+    marginRight: 8,
+  },
   footerText: {
     color: theme.colors.textMuted,
     fontSize: 11,
