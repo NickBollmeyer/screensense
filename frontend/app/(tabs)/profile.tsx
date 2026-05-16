@@ -32,9 +32,12 @@ import { api, CategoryMeta, Goal, FocusMode } from '../../src/api';
 import CategoryIcon from '../../src/components/CategoryIcon';
 import SwipeableTab from '../../src/components/SwipeableTab';
 
-const PRIVACY_URL = 'https://screensense-app.vercel.app/privacy.html';
-const TERMS_URL = 'https://screensense-app.vercel.app/terms.html';
+const PRIVACY_URL = 'https://screensense-app.vercel.app/privacy';
+const TERMS_URL = 'https://screensense-app.vercel.app/terms';
 const SUPPORT_EMAIL = 'hello@screensense.app';
+// Until ScreenSense is published on the Play Store this URL returns "item not
+// found". Flip APP_PUBLISHED to true after your first production release.
+const APP_PUBLISHED_ON_PLAY = false;
 const PLAY_STORE_URL =
   'https://play.google.com/store/apps/details?id=app.screensense.android';
 
@@ -268,21 +271,21 @@ export default function ProfileScreen() {
         <SettingsRow
           icon={<Star size={18} color={theme.colors.text} strokeWidth={2} />}
           label="Rate ScreenSense"
-          subLabel="Help others discover the app"
+          subLabel={
+            APP_PUBLISHED_ON_PLAY
+              ? 'Help others discover the app'
+              : 'Coming soon — once we hit the Play Store'
+          }
           testID="setting-rate"
-          onPress={async () => {
-            try {
-              const supported = await Linking.canOpenURL(PLAY_STORE_URL);
-              if (supported) {
-                Linking.openURL(PLAY_STORE_URL);
-              } else {
-                Alert.alert(
-                  'Coming soon',
-                  'ScreenSense is not yet live on the Play Store. Once it is, this will open the rating page.'
-                );
-              }
-            } catch {
-              Alert.alert('Could not open Play Store');
+          onPress={() => {
+            if (APP_PUBLISHED_ON_PLAY) {
+              Linking.openURL(PLAY_STORE_URL).catch(() => {});
+            } else {
+              Alert.alert(
+                'Almost there!',
+                "ScreenSense isn't on the Play Store yet — you're using the preview build. Once we publish, this button will open the rating page.",
+                [{ text: 'OK' }]
+              );
             }
           }}
         />
