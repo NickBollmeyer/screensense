@@ -23,7 +23,7 @@ PLANS = {
     "premium_monthly": {
         "id": "premium_monthly",
         "name": "Monthly",
-        "price_cents": 499,
+        "price_cents": 399,
         "currency": "USD",
         "period": "month",
         "trial_days": 7,
@@ -31,11 +31,20 @@ PLANS = {
     "premium_annual": {
         "id": "premium_annual",
         "name": "Annual",
-        "price_cents": 2999,
+        "price_cents": 1999,
         "currency": "USD",
         "period": "year",
         "trial_days": 7,
-        "save_pct": 50,
+        "save_pct": 58,
+    },
+    "premium_lifetime": {
+        "id": "premium_lifetime",
+        "name": "Founders Lifetime",
+        "price_cents": 4999,
+        "currency": "USD",
+        "period": "lifetime",
+        "trial_days": 0,
+        "limited_to": 1000,
     },
 }
 
@@ -56,6 +65,23 @@ def _seconds(now: datetime, days: int) -> datetime:
 @billing_router.get("/plans")
 async def list_plans():
     return list(PLANS.values())
+
+
+@billing_router.get("/founders_remaining")
+async def founders_remaining():
+    """How many Founders Lifetime slots are still available (out of 1000)."""
+    cap = PLANS["premium_lifetime"]["limited_to"]
+    used = await db.subscriptions.count_documents(
+        {"plan_id": "premium_lifetime", "status": {"$in": ["active", "trialing"]}}
+    )
+    remaining = max(0, cap - used)
+    return {
+        "remaining": remaining,
+        "total": cap,
+        "claimed": used,
+        "available": remaining > 0,
+        "price_cents": PLANS["premium_lifetime"]["price_cents"],
+    }
 
 
 @billing_router.get("/status")

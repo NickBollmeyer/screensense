@@ -65,6 +65,10 @@ export default function Dashboard() {
     return (
       <View style={styles.loader} testID="dashboard-loading">
         <ActivityIndicator color={theme.colors.primary} size="large" />
+        <Text style={styles.loaderText}>Loading your stats…</Text>
+        <Text style={styles.loaderSub}>
+          First open of the day takes a few seconds to wake the server.
+        </Text>
       </View>
     );
   }
@@ -331,6 +335,20 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.bg,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: 40,
+  },
+  loaderText: {
+    color: theme.colors.text,
+    fontSize: 16,
+    fontWeight: '700',
+    marginTop: 20,
+  },
+  loaderSub: {
+    color: theme.colors.textMuted,
+    fontSize: 13,
+    textAlign: 'center',
+    marginTop: 8,
+    lineHeight: 19,
   },
   header: {
     flexDirection: 'row',

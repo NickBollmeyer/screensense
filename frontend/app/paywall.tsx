@@ -20,9 +20,10 @@ import {
   Target,
   Moon,
   TrendingUp,
+  Crown,
 } from 'lucide-react-native';
 import { theme } from '../src/theme';
-import { billing, Plan, formatPrice } from '../src/billing';
+import { billing, Plan, FoundersStatus, formatPrice } from '../src/billing';
 
 const PRO_FEATURES = [
   { icon: MessageSquare, text: 'Unlimited AI Coach messages with memory' },
@@ -36,6 +37,7 @@ const PRO_FEATURES = [
 export default function PaywallScreen() {
   const router = useRouter();
   const [plans, setPlans] = useState<Plan[]>([]);
+  const [founders, setFounders] = useState<FoundersStatus | null>(null);
   const [selected, setSelected] = useState<string>('premium_annual');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -43,8 +45,14 @@ export default function PaywallScreen() {
   useEffect(() => {
     (async () => {
       try {
-        const list = await billing.getPlans();
+        const [list, fs] = await Promise.all([
+          billing.getPlans(),
+          billing.getFoundersStatus().catch(() => null),
+        ]);
         setPlans(list);
+        setFounders(fs);
+        // Default-select the Lifetime tier when slots remain — it's the best deal.
+        if (fs && fs.available) setSelected('premium_lifetime');
       } catch (e) {
         console.warn(e);
       } finally {
@@ -58,9 +66,12 @@ export default function PaywallScreen() {
     try {
       await billing.startTrial(selected);
       await AsyncStorage.setItem('screensense.onboarding_complete', '1');
+      const isLifetime = selected === 'premium_lifetime';
       Alert.alert(
-        'Trial activated',
-        '7 days free. We will not charge you until your trial ends — and only if you choose to keep going.',
+        isLifetime ? "You're a Founder" : 'Trial activated',
+        isLifetime
+          ? "Welcome to the club. You'll never be charged again — that's our promise."
+          : '7 days free. We will not charge you until your trial ends — and only if you choose to keep going.',
         [{ text: 'Awesome', onPress: () => router.replace('/(tabs)') }]
       );
     } catch (e: any) {
@@ -89,7 +100,14 @@ export default function PaywallScreen() {
 
   const monthly = plans.find((p) => p.id === 'premium_monthly');
   const annual = plans.find((p) => p.id === 'premium_annual');
+  const lifetime = plans.find((p) => p.id === 'premium_lifetime');
   const annualMonthly = annual ? Math.round(annual.price_cents / 12) / 100 : 2.5;
+
+  const ctaText = submitting
+    ? 'Starting…'
+    : selected === 'premium_lifetime'
+      ? `Claim Founder slot — ${formatPrice(lifetime?.price_cents || 4999)} once`
+      : 'Start 7-day free trial';
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -116,6 +134,50 @@ export default function PaywallScreen() {
 
         {/* Plan cards */}
         <View style={styles.plans}>
+          {lifetime && founders && founders.available && (
+            <TouchableOpacity
+              testID="plan-lifetime"
+              onPress={() => setSelected('premium_lifetime')}
+              activeOpacity={0.85}
+              style={[
+                styles.plan,
+                styles.planLifetime,
+                selected === 'premium_lifetime' && styles.planLifetimeSelected,
+              ]}
+            >
+              <View style={styles.foundersBadge}>
+                <Crown size={11} color="#FFD60A" strokeWidth={2.6} />
+                <Text style={styles.foundersBadgeText}>
+                  FOUNDERS · {founders.remaining} of {founders.total} LEFT
+                </Text>
+              </View>
+              <View style={styles.planRow}>
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.planName, { color: '#FFD60A' }]}>
+                    Founders Lifetime
+                  </Text>
+                  <Text style={styles.planPrice}>
+                    {formatPrice(lifetime.price_cents)}{' '}
+                    <Text style={styles.planSub}>· once</Text>
+                  </Text>
+                  <Text style={styles.planSub}>
+                    Never charged again. Includes every future Pro feature.
+                  </Text>
+                </View>
+                <View
+                  style={[
+                    styles.radio,
+                    selected === 'premium_lifetime' && styles.radioActive,
+                  ]}
+                >
+                  {selected === 'premium_lifetime' && (
+                    <View style={styles.radioInner} />
+                  )}
+                </View>
+              </View>
+            </TouchableOpacity>
+          )}
+
           {annual && (
             <TouchableOpacity
               testID="plan-annual"
@@ -127,7 +189,7 @@ export default function PaywallScreen() {
               ]}
             >
               <View style={styles.bestValue}>
-                <Text style={styles.bestValueText}>BEST VALUE · SAVE 50%</Text>
+                <Text style={styles.bestValueText}>POPULAR · SAVE 58%</Text>
               </View>
               <View style={styles.planRow}>
                 <View style={{ flex: 1 }}>
@@ -204,14 +266,13 @@ export default function PaywallScreen() {
           onPress={startTrial}
           disabled={submitting}
         >
-          <Text style={styles.ctaText}>
-            {submitting ? 'Starting…' : 'Start 7-day free trial'}
-          </Text>
+          <Text style={styles.ctaText}>{ctaText}</Text>
         </TouchableOpacity>
 
         <Text style={styles.disclaimer}>
-          No card required for the trial. Cancel anytime in Google Play.{'\n'}
-          After 7 days, the selected plan starts unless cancelled.
+          {selected === 'premium_lifetime'
+            ? 'One-time payment. No subscription, no renewal. Includes every future Pro feature, forever.'
+            : 'No card required for the trial. Cancel anytime in Google Play.\nAfter 7 days, the selected plan starts unless cancelled.'}
         </Text>
 
         <TouchableOpacity onPress={skipForNow} testID="skip-paywall-btn">
@@ -306,6 +367,37 @@ const styles = StyleSheet.create({
     fontSize: 9,
     fontWeight: '900',
     letterSpacing: 1,
+  },
+  planLifetime: {
+    borderColor: '#FFD60A55',
+    backgroundColor: 'rgba(255, 214, 10, 0.04)',
+  },
+  planLifetimeSelected: {
+    borderColor: '#FFD60A',
+    backgroundColor: 'rgba(255, 214, 10, 0.10)',
+    shadowColor: '#FFD60A',
+    shadowOpacity: 0.18,
+    shadowRadius: 14,
+    elevation: 4,
+  },
+  foundersBadge: {
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(255, 214, 10, 0.18)',
+    borderWidth: 1,
+    borderColor: '#FFD60A55',
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+    borderRadius: 999,
+    marginBottom: 10,
+  },
+  foundersBadgeText: {
+    color: '#FFD60A',
+    fontSize: 9,
+    fontWeight: '900',
+    letterSpacing: 1.2,
   },
   planRow: { flexDirection: 'row', alignItems: 'center' },
   planName: { color: theme.colors.text, fontSize: 16, fontWeight: '700' },

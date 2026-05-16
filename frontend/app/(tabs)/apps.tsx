@@ -9,11 +9,13 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Search, X } from 'lucide-react-native';
+import { Search, X, ChevronRight } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
 import { theme, formatDuration } from '../../src/theme';
 import { api, TodayUsage, CategoryMeta } from '../../src/api';
 
 export default function AppsScreen() {
+  const router = useRouter();
   const [data, setData] = useState<TodayUsage | null>(null);
   const [cats, setCats] = useState<CategoryMeta[]>([]);
   const [filter, setFilter] = useState<string>('all');
@@ -144,10 +146,12 @@ export default function AppsScreen() {
           const color = meta?.color ?? theme.colors.primary;
           const initial = app.app_name.charAt(0).toUpperCase();
           return (
-            <View
+            <TouchableOpacity
               key={app.package_name + app.app_name}
               style={styles.appRow}
               testID={`app-row-${app.package_name}`}
+              activeOpacity={0.7}
+              onPress={() => router.push(`/category/${app.category_id}` as any)}
             >
               <View style={[styles.appIcon, { backgroundColor: color + '22', borderColor: color + '55' }]}>
                 <Text style={[styles.appIconText, { color }]}>{initial}</Text>
@@ -166,7 +170,8 @@ export default function AppsScreen() {
                 </View>
               </View>
               <Text style={styles.appTime}>{formatDuration(app.duration_seconds)}</Text>
-            </View>
+              <ChevronRight size={16} color={theme.colors.textMuted} strokeWidth={2} style={{ marginLeft: 4 }} />
+            </TouchableOpacity>
           );
         })}
         {filtered.length === 0 && (

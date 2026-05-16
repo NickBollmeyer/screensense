@@ -30,12 +30,21 @@ export type Plan = {
   name: string;
   price_cents: number;
   currency: string;
-  period: 'month' | 'year';
+  period: 'month' | 'year' | 'lifetime';
   trial_days: number;
   save_pct?: number;
+  limited_to?: number;
 };
 
-const PLAN_IDS = ['premium_monthly', 'premium_annual'];
+export type FoundersStatus = {
+  remaining: number;
+  total: number;
+  claimed: number;
+  available: boolean;
+  price_cents: number;
+};
+
+const PLAN_IDS = ['premium_monthly', 'premium_annual', 'premium_lifetime'];
 
 const isNativeBuild =
   Platform.OS === 'android' &&
@@ -72,6 +81,8 @@ export const billing = {
   getStatus: () => http<SubscriptionStatus>('/status'),
 
   getPlans: () => http<Plan[]>('/plans'),
+
+  getFoundersStatus: () => http<FoundersStatus>('/founders_remaining'),
 
   /**
    * Start a 7-day free trial. On native builds, this triggers Google Play's
